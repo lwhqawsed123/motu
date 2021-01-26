@@ -1,0 +1,64 @@
+.video-table {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+
+    .video-item {
+        margin: 0 5px 10px 5px;
+        font-size: 12px;
+        width: 320px;
+
+        .video-box {
+            height: 240px;
+        }
+
+        .user-info {
+            display: flex;
+
+            .user-avatar {
+                width: 64px;
+                height: 64px;
+                margin-right: 5px;
+            }
+
+            .user-message {
+                flex: 1;
+                line-height: 20px;
+            }
+        }
+
+        .text-button {
+            color: #5b9bd1;
+            margin-right: 5px;
+
+            &:hover {
+                color: #337ab7;
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        }
+
+        .user-star {
+            line-height: 20px;
+
+            .star-text {
+                margin-right: 15px
+            }
+
+            .has-star {
+                color: #FFFFFF;
+                background-color: #9d4af5;
+                padding: 0 2px;
+            }
+        }
+
+        .udid_count {
+            color: #FF0000;
+
+            &:hover {
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        }
+    }
+}

@@ -1,0 +1,132 @@
+<template>
+  <!-- <div :class="{'hidden':hidden}" class="pagination-container"> -->
+  <div class="pagination-container" :class="{'position':onTop}">
+    <el-pagination
+      :background="background"
+      :current-page="page"
+      :page-size.sync="limit"
+      :layout="layout"
+      :total="total"
+      v-bind="$attrs"
+      @current-change="handleCurrentChange"
+    >
+      <span>
+        <el-button name="prev" type="info" plain @click="handlePrev('prev')">前一天</el-button>
+        <el-button
+          name="next"
+          type="info"
+          style="margin-right:10px"
+          plain
+          @click="handlePrev('next')"
+        >后一天</el-button>
+      </span>
+    </el-pagination>
+    <span class="ext_stat" v-if="ext_stat">{{ext_stat.substr(1)}}</span>
+  </div>
+</template>
+
+<script>
+import { scrollTo } from "@/utils/scroll-to";
+
+export default {
+  name: "mypagination",
+  props: {
+    total: {
+      required: true,
+      type: Number,
+    },
+    page: {
+      type: Number,
+      default: 1,
+    },
+    limit: {
+      type: Number,
+      default: 10,
+    },
+    pageSizes: {
+      type: Array,
+      default() {
+        return [10, 20, 30, 50];
+      },
+    },
+    layout: {
+      type: String,
+      default: "slot,total,prev,pager,next,jumper",
+    },
+    background: {
+      type: Boolean,
+      default: true,
+    },
+    autoScroll: {
+      type: Boolean,
+      default: true,
+    },
+    hidden: {
+      type: Boolean,
+      default: false,
+    },
+    ext_stat: {
+      // 插槽
+      type: String,
+      default: null,
+    },
+    date: {
+      // 插槽
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
+    // 是否绝对定位
+    onTop: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  methods: {
+    handleCurrentChange(val) {
+      this.$emit("update:page", val); // 修改父组件传递的page值
+      this.$emit("pagination", { page: val });
+      if (this.autoScroll) {
+        scrollTo(0, 800);
+      }
+    },
+    handlePrev(value) {
+      // 设置前一天/后一天
+      this.prevDate(this.date, value);
+      this.$emit("pagination");
+    },
+  },
+};
+</script>
+
+<style scoped>
+.pagination-container {
+  background: #fff;
+  /* padding: 32px 16px; */
+  position: absolute;
+  bottom: 30px;
+  left: 20px;
+  right: 0;
+  padding-top: 10px;
+}
+.ext_stat {
+  margin-left: 6px;
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: #606266;
+  font-weight: normal;
+}
+.pagination-container.hidden {
+  display: none;
+}
+.pagination-container.position {
+  position: relative;
+  bottom: unset;
+  left: unset;
+  right: unset;
+  margin: 5px 0;
+  padding: 5px 0 5px 20px;
+  background-color: #faf9f9;
+}
+</style>

@@ -1,0 +1,398 @@
+<template>
+  <div class="detail">
+    <el-row class="detail_header">
+      <el-col class="detail_avatar" :span="5">
+        <img :src="form.avatar" alt="用户头像" class="detail_avatar_img" />
+        <div class="detail_avatar_setting" v-if="form.setting">
+          <span class="detail_avatar_setting_title">通话免打扰：</span>
+          <el-tag type="success" size="mini" v-if="form.setting.callaccept==='2'">开</el-tag>
+          <el-tag type="danger" size="mini" v-else>关</el-tag>
+        </div>
+        <div class="detail_avatar_setting" v-if="form.setting">
+          <span class="detail_avatar_setting_title">消息免打扰：</span>
+          <el-tag type="success" size="mini" v-if="form.setting.msgaccept==='2'">开</el-tag>
+          <el-tag type="danger" size="mini" v-else>关</el-tag>
+        </div>
+      </el-col>
+      <el-col class="detail_table" :span="19">
+        <table class="table table-striped table-bordered table-hover view-userinfo">
+          <tbody>
+            <tr>
+              <td width="25%">ID</td>
+              <td width="25%">
+                <span>{{form.username}}</span>
+                <el-tag size="mini" v-if="form.video_verify&&form.gender==='1'">已认证</el-tag>
+                <el-tag type="danger" size="mini" v-if="form.video_verify&&form.gender==='2'">已认证</el-tag>
+              </td>
+              <td width="25%">用户ID</td>
+              <td width="25%">{{form.userid}}</td>
+            </tr>
+            <tr>
+              <td width="25%">昵称</td>
+              <td width="25%">
+                <span>{{form.nickname}}</span>
+                <el-tag size="mini" effect="plain" v-if="form.gender==='1'">{{form.age}}</el-tag>
+                <el-tag size="mini" effect="plain" type="danger" v-else>{{form.age}}</el-tag>
+              </td>
+              <td width="25%">状态</td>
+              <td width="25%">
+                <span v-if="form.status==='2'">
+                  <span>{{columns.status.value[form.status]}}</span>
+                  <span class="refresh-token" @click="changeDetail('解禁')">
+                    <span class="el-icon-refresh refresh-icon"></span>
+                    <span>解禁</span>
+                  </span>
+                </span>
+
+                <span v-else-if="form.status==='3'">
+                  <span>{{columns.status.value[form.status]}}</span>
+                  <span class="refresh-token" @click="changeDetail('恢复')">
+                    <span class="el-icon-refresh refresh-icon"></span>
+                    <span>恢复</span>
+                  </span>
+                </span>
+
+                <span v-else-if="form.freeze_jifen">
+                  <span>积分冻结</span>
+                  <span class="refresh-token" @click="changeDetail('解冻')">
+                    <span class="el-icon-refresh refresh-icon"></span>
+                    <span>解冻</span>
+                  </span>
+                </span>
+
+                <span v-else-if="form.freeze_action">
+                  <span>禁言</span>
+                  <span class="refresh-token" @click="changeDetail('解除禁言')">
+                    <span class="el-icon-refresh refresh-icon"></span>
+                    <span>解除禁言</span>
+                  </span>
+                </span>
+
+                <span v-else>
+                  <span>{{columns.status.value[form.status]}}</span>
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td width="25%">注册方式</td>
+              <td width="25%">
+                <span>{{form.comefrom}}</span>
+
+                <span
+                  class="refresh-token"
+                  @click="openBanned('重置密码')"
+                  v-if="form.show_reset_pwd==='1'"
+                >
+                  <span class="el-icon-refresh refresh-icon"></span>重置密码
+                </span>
+              </td>
+              <td width="25%">手机号码</td>
+              <td width="25%">{{form.mobile}}</td>
+            </tr>
+            <tr>
+              <td width="25%">历史充值</td>
+              <td width="25%">{{form.total_order}}</td>
+              <td width="25%">当前/累计金币</td>
+              <td width="25%">{{form.gold+'/'+(form.usercount.goldsum||'0')}}</td>
+            </tr>
+            <tr>
+              <td width="25%">累计积分</td>
+              <td width="25%">{{form.usercount.jifen}}</td>
+              <td width="25%">当前积分</td>
+              <td width="25%">{{form.jifen}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </el-col>
+    </el-row>
+    <el-row style="margin:20px 0">
+      <el-col class="detail_table">
+        <table class="table table-striped table-bordered table-hover view-userinfo">
+          <tbody>
+            <tr>
+              <td width="25%">
+                <span>当前状态</span>
+                <br />
+                <el-tag type="warning" size="mini" v-if="form.top">{{form.top}}</el-tag>
+                <el-tag type="success" size="mini" v-if="form.online">{{form.online}}</el-tag>
+              </td>
+              <td width="25%">
+                <span>注册时间</span>
+                <br />
+                <span>{{parseTime(form.registertime)}}</span>
+              </td>
+              <td width="25%">
+                <span>最后登陆时间</span>
+                <br />
+                <span>{{parseTime(form.lastlogintime)}}</span>
+              </td>
+              <td width="25%">
+                <span>列表刷新时间</span>
+                <br />
+                <span>{{form.lastlogintime2}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td width="25%">注册IP</td>
+              <td width="25%">
+                <span>{{form.registerip}}</span>
+                <br />
+                <span>{{form.location_registerip}}</span>
+              </td>
+              <td width="25%">登陆IP</td>
+              <td width="25%">
+                <span>{{form.lastloginip}}</span>
+                <br />
+                <span>{{form.location_lastloginip}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td width="25%">注册包名/渠道</td>
+              <td width="25%">{{form.client_name+' '+form.client_id+' / '+form.channel}}</td>
+              <td width="25%">登录包名/渠道</td>
+              <td
+                width="25%"
+              >{{form.lastlogin_client_name+' '+form.cur_client_id+' / '+form.cur_channel}}</td>
+            </tr>
+            <tr>
+              <td width="25%">版本</td>
+              <td width="25%">{{form.version+"("+form.build+")"}}</td>
+              <td width="25%">终端类型</td>
+              <td width="25%">{{form.branchs}}</td>
+            </tr>
+            <tr>
+              <td width="25%">签名</td>
+              <td width="25%" colspan="3">{{form.signtext}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col class="detail_table">
+        <table class="table table-striped table-bordered table-hover view-userinfo">
+          <tbody>
+            <tr>
+              <td width="25%">
+                <span>登陆设备号</span>
+              </td>
+              <td colspan="3">
+                <span>{{form.udid}}</span>
+                <span>同设备:</span>
+                <span
+                  class="to-quick-search"
+                  :class="+form.hardsn_count>=3?'color-red':''"
+                  @click="openQuickSearch(1,form,'登陆设备')"
+                >{{form.udid_count+"人"}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td width="25%">
+                <span>注册设备号</span>
+              </td>
+              <td colspan="3">
+                <span>{{form.hardsn}}</span>
+                <span>同设备:</span>
+                <span
+                  class="to-quick-search"
+                  :class="+form.hardsn_count>=3?'color-red':''"
+                  @click="openQuickSearch(2,form,'注册设备')"
+                >{{form.hardsn_count+"人"}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td width="25%">
+                <span>iPhone Token</span>
+              </td>
+              <td colspan="3">
+                <span>{{form.token}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td width="25%">
+                <span>IM Token</span>
+              </td>
+              <td colspan="3">
+                <span>{{form.nim_token}}</span>
+                <span class="el-icon-refresh refresh-icon"></span>
+                <span class="refresh-token" @click="open">Refresh Token</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </el-col>
+    </el-row>
+    <el-dialog
+      title="快速查询"
+      :visible.sync="quickSearch.quickSearchDialog"
+      append-to-body
+      custom-class="quickSearch-dialog"
+      width="900px"
+    >
+      <div class="quickSearch-content">
+        <listTable :data="quickSearch.tableData"></listTable>
+        <my-pagination
+        v-show="quickSearch.total>0"
+        :total="quickSearch.total"
+        :page.sync="quickSearch.pageNum"
+        :limit.sync="quickSearch.pageSize"
+        @pagination="quickSearchList"
+      />
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { list, refresh_nimtoken } from "@/api/central/users/list.js";
+import listTable from "./list";
+export default {
+  name: "",
+  props: ["form", "columns"],
+  data() {
+    return {
+      quickSearch: {
+        quickSearchDialog: false,
+        quickSearch: "",
+        device_type: "",
+        hardsn: "",
+        tableData: [],
+        pageNum: 1,
+        pageSize: 20,
+        offset: 0,
+        total: 0,
+        ext_stat:""
+      }
+    };
+  },
+
+  components: {
+    listTable
+  },
+
+  computed: {},
+
+  beforeMount() {},
+  created() {},
+  mounted() {},
+
+  methods: {
+    open() {
+      const h = this.$createElement;
+      this.$msgbox({
+        title: "提示",
+        message: h("div", null, [
+          h("p", null, "重置Token后需用户重新登录方可收发消息，请谨慎操作。"),
+          h("p", { style: "color: #ff4949" }, [
+            h("span", {
+              style: "color:#ff4949;font-size:14px;margin-right:5px;",
+              class: "el-icon-warning"
+            }),
+            "确认重置Token吗？"
+          ])
+        ]),
+        showCancelButton: true,
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        beforeClose: (action, instance, done) => {
+          if (action === "confirm") {
+            instance.confirmButtonLoading = true;
+            instance.confirmButtonText = "执行中...";
+            setTimeout(() => {
+              done();
+              // setTimeout(() => {
+              //   instance.confirmButtonLoading = false;
+              // }, 300);
+              instance.confirmButtonLoading = false;
+              refresh_nimtoken(this.form.userid).then(res => {
+                if (res.code === 0) {
+                  this.$message.success({
+                    message: res.info
+                  });
+                  this.$emit("refresh", this.form.userid);
+                }
+              });
+            }, 500);
+          } else {
+            done();
+          }
+        }
+      }).then(action => {
+        // this.$message({
+        //   type: "info",
+        //   message: "action: " + action
+        // });
+      });
+    },
+    // 打开封禁弹框
+    openBanned(title) {
+      this.$emit("openBanned", title);
+    },
+    // 打开解禁/恢复/解冻/解除禁言弹框
+    changeDetail(title) {
+      this.$emit("changeDetail", title);
+    },
+
+    // 关闭窗口
+    close() {
+      this.$emit("closeDialog", false);
+    },
+    // ========快速查询==========
+    openQuickSearch(num, form, title) {
+      this.quickSearch.quicksearch = num;
+      this.quickSearch.device_type = form.device_type;
+      this.quickSearch.hardsn = form.hardsn;
+      this.quickSearch.udid = form.udid;
+      this.quickSearchList(title);
+      this.quickSearch.quickSearchDialog = true;
+    },
+    quickSearchList(title) {
+      let data = {
+        quicksearch: this.quickSearch.quicksearch,
+        offset: (this.quickSearch.pageNum - 1) * this.quickSearch.pageSize
+      };
+      if (title === "登陆设备") {
+        data.udid = this.quickSearch.udid;
+      } else if (title === "注册设备") {
+        data.device_type = this.quickSearch.device_type;
+        data.hardsn = this.quickSearch.hardsn;
+      }
+      list(data).then(res => {
+        if (res.code === 0) {
+          this.quickSearch.tableData = res.data.items;
+          this.quickSearch.ext_stat = res.data.ext_stat;
+          this.quickSearch.total = +res.data.total_rows;
+        }
+      });
+    },
+    handleCurrentChange(val) {
+      // 改变默认的页数
+      this.formInline.pageNum = val;
+      // 切换页码时，要获取每页显示的条数
+      this.quickSearchList();
+    }
+  },
+
+  watch: {}
+};
+</script>
+<style lang='scss' scoped>
+@import "@/assets/styles/scss/detail.scss";
+.quickSearch-dialog {
+  .quickSearch-content {
+    width: 100%;
+    height: 100%;
+    padding-bottom: 100px;
+    position: relative;
+  }
+  // .quickSearch-pagination {
+  //   left: 10px;
+  //   bottom: 10px;
+  // }
+}
+</style>
+<style lang="scss">
+.quickSearch-dialog .el-dialog__body {
+  padding-top: 10px;
+}
+</style>

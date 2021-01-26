@@ -1,0 +1,65 @@
+import request from '@/utils/request'
+
+// 查询菜单列表
+export function listMenu(query) {
+  return request({
+    url: '/manageapi/menus',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询菜单详细
+export function getMenu(menuId) {
+  return request({
+    url: `/manageapi/menu_view?menuId=${menuId}`,
+    method: 'get'
+  })
+}
+
+// 查询菜单下拉树结构
+export function getTreeselect() {
+  return request({
+    url: '/manageapi/treeselect',
+    method: 'get'
+  })
+}
+
+
+// 新增菜单
+export function addMenu(data) {
+  return request({
+    url: '/manageapi/menu_save',
+    method: 'get',
+    params: data,
+    loading:true
+  })
+}
+
+// 修改菜单
+export function updateMenu(data) {
+  return request({
+    url: '/manageapi/menu_save',
+    method: 'get',
+    params: data,
+    loading:true
+  })
+}
+
+// 删除菜单
+export function delMenu(menuId) {
+  return request({
+    url: `/manageapi/menu_delete?menuId=${menuId}`,
+    method: 'get',
+    loading:true
+  })
+}
+
+
+// // 根据角色ID查询菜单下拉树结构
+// export function roleMenuTreeselect(roleId) {
+//   return request({
+//     url: '/system/menu/roleMenuTreeselect/' + roleId,
+//     method: 'get'
+//   })
+// }

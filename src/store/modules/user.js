@@ -1,0 +1,180 @@
+import { login, logout, getInfo, getGroup, mobilelogin } from '@/api/login'
+import { getToken, setToken, removeToken } from '@/utils/auth'
+
+const user = {
+  state: {
+    token: getToken(),
+    name: '',
+    avatar: '',
+    roles: [],
+    permissions: [],
+    groupInfo: {},
+  },
+
+  mutations: {
+    SET_TOKEN: (state, token) => {
+      state.token = token
+    },
+    SET_NAME: (state, name) => {
+      state.name = name
+    },
+    SET_AVATAR: (state, avatar) => {
+      state.avatar = avatar
+    },
+    SET_ROLES: (state, roles) => {
+      state.roles = roles
+    },
+    SET_PERMISSIONS: (state, permissions) => {
+      state.permissions = permissions
+    },
+    SET_USERTYPE: (state, userType) => {
+      state.userType = userType
+    },
+    SET_GROUPINFO: (state, groupInfo) => {
+      state.groupInfo = groupInfo
+    }
+  },
+
+  actions: {
+    // 登录
+    Login({ commit }, userInfo) {
+      return new Promise((resolve, reject) => {
+        let loginType = userInfo.loginType
+        if (userInfo.loginType) {
+          delete userInfo.loginType
+          login(userInfo).then(res => {
+            if (res.data.code === 0) {
+              setToken(res.data.ci_session)
+              commit('SET_TOKEN', res.data.ci_session)
+              localStorage.setItem('LOGINTYPE', loginType)
+            }
+
+            resolve(res)
+          }).catch(error => {
+            reject(error)
+          })
+        } else {
+          delete userInfo.loginType
+          mobilelogin(userInfo).then(res => {
+            if (res.data.code === 0) {
+              setToken(res.data.ci_session)
+              commit('SET_TOKEN', res.data.ci_session)
+              localStorage.setItem('LOGINTYPE', loginType)
+            }
+            resolve(res)
+          }).catch(error => {
+            reject(error)
+          })
+        }
+
+      })
+    },
+
+    // 获取用户信息
+    // GetInfo({ commit, state }) {
+    //   return new Promise((resolve, reject) => {
+    //     getInfo(state.token).then(res => {
+    //       const user = res.user
+    //       const avatar = user.avatar == "" ? require("@/assets/image/profile.jpg") : process.env.VUE_APP_BASE_API + user.avatar;
+    //       if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
+    //         commit('SET_ROLES', res.roles)
+    //         commit('SET_PERMISSIONS', res.permissions)
+    //       } else {
+    //         commit('SET_ROLES', ['ROLE_DEFAULT'])
+    //       }
+    //       commit('SET_NAME', user.userName)
+    //       commit('SET_AVATAR', avatar)
+    //       resolve(res)
+    //     }).catch(error => {
+    //       reject(error)
+    //     })
+    //   })
+    // },
+    // 获取用户信息
+    // GetInfo({ commit, state }) {
+    //   return new Promise((resolve, reject) => {
+    //     console.log(123);
+
+    //     getInfo(state.token).then(res => {
+    //       // console.log(res.roles);
+
+    //       // console.log(res.user.userType,'用户类型');
+    //       const user = res.user
+    //       const avatar = user.avatar == "" ? require("@/assets/image/gr.png") : process.env.VUE_APP_BASE_API + user.avatar;
+
+    //       commit('SET_ROLES', res.roles)
+    //       commit('SET_PERMISSIONS', res.permissions)
+    //       //  if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
+    //       //   commit('SET_ROLES', res.roles)
+    //       //   commit('SET_PERMISSIONS', res.permissions)
+    //       // } else {
+    //       //   commit('SET_ROLES', ['ROLE_DEFAULT'])
+    //       // }
+    //       // 保存用户类型
+    //       commit('SET_USERTYPE', user.userType)
+    //       commit('SET_NAME', user.username)
+    //       commit('SET_AVATAR', avatar)
+    //       resolve(res)
+    //     }).catch(error => {
+    //       reject(error)
+    //     })
+    //   })
+    // },
+    GetInfo({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        // setTimeout(() => {
+        //   const user = {
+        //     roles:[1,1]
+        //   }
+        //   const avatar = require("@/assets/image/gr.png")
+        //   commit('SET_ROLES', user.roles)
+        //   commit('SET_PERMISSIONS', ["*:*:*"])
+        //   commit('SET_USERTYPE', "00")
+        //   commit('SET_NAME', "lds")
+        //   commit('SET_AVATAR', avatar)
+        //   resolve(user)
+        // }, 0);
+        getGroup().then(res => {
+          const user = {
+            roles: [1, 1]
+          }
+          const avatar = require("@/assets/image/gr.png")
+          commit('SET_ROLES', user.roles)
+          commit('SET_PERMISSIONS', ["*:*:*"])
+          commit('SET_USERTYPE', "00")
+          commit('SET_NAME', "lds")
+          commit('SET_AVATAR', avatar)
+          commit('SET_GROUPINFO', res.data || {})
+          resolve(user)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    // 退出系统
+    LogOut({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        logout(state.token).then(() => {
+          commit('SET_TOKEN', '')
+          commit('SET_ROLES', [])
+          commit('SET_PERMISSIONS', [])
+          removeToken()
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    // 前端 登出
+    FedLogOut({ commit }) {
+      return new Promise(resolve => {
+        commit('SET_TOKEN', '')
+        removeToken()
+        resolve()
+      })
+    }
+  }
+}
+
+export default user

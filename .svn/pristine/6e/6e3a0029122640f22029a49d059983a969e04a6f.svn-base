@@ -1,0 +1,118 @@
+<template>
+  <div>
+    <el-date-picker
+      v-model="datepick.startday"
+      type="datetime"
+      value-format="yyyy-MM-dd HH:mm:ss"
+      :default-time="'00:00:00'"
+      :clearable="false"
+      size="mini"
+      placeholder="开始时间"
+      style="width:190px"
+      popper-class="picker-popper-class"
+      :editable="false"
+      @change="dateChange"
+    ></el-date-picker>
+    <el-date-picker
+      v-model="datepick.endday"
+      type="datetime"
+      value-format="yyyy-MM-dd HH:mm:ss"
+      :default-time="'23:59:59'"
+      :clearable="false"
+      size="mini"
+      placeholder="结束时间"
+      style="width:190px"
+      popper-class="picker-popper-class"
+      :editable="false"
+      @change="dateChange"
+    ></el-date-picker>
+    <!-- :picker-options="endOptions" -->
+  </div>
+</template>
+
+<script>
+export default {
+  name: "",
+  props: ["date"],
+  data() {
+    return {
+      datepick: this.date,
+      // 日期禁用项 禁用大于结束日期
+      startOptions: {
+        disabledDate: false
+      },
+      // 日期禁用项 禁用小于开始日期
+      endOptions: {
+        disabledDate: false
+      }
+    };
+  },
+
+  components: {},
+
+  computed: {},
+
+  beforeMount() {},
+  created() {
+    // this.endOptions = {
+    //   disabledDate: date => {
+    //     if (!this.datepick.startday) {
+    //       return false;
+    //     } else if (
+    //       new Date(date).getTime() ===
+    //       new Date(this.datepick.startday).getTime()
+    //     ) {
+    //       return false;
+    //     }
+    //     return date.getTime() < new Date(this.datepick.startday).getTime();
+    //   }
+    // };
+    // this.startOptions = {
+    //   disabledDate: date => {
+    //     if (!this.datepick.endday) {
+    //       return false;
+    //     } else if (
+    //       new Date(date).getTime() === new Date(this.datepick.endday).getTime()
+    //     ) {
+    //       return false;
+    //     }
+    //     return date.getTime() > new Date(this.datepick.endday).getTime();
+    //   }
+    // };
+  },
+  mounted() {},
+
+  methods: {
+    dateChange() {
+      this.$emit("onSubmit");
+    }
+  },
+
+  watch: {
+    // ["datepick.startday"](val) {
+    //   this.endOptions = {
+    //     disabledDate(date) {
+    //       if (!val) {
+    //         return false;
+    //       } else if (new Date(date).getTime() === new Date(val).getTime()) {
+    //         return false;
+    //       }
+    //       return date.getTime() < new Date(val).getTime();
+    //     }
+    //   };
+    // },
+    // ["datepick.endday"](val) {
+    //   this.startOptions = {
+    //     disabledDate(date) {
+    //       if (!val) {
+    //         return false;
+    //       } else if (new Date(date).getTime() === new Date(val).getTime()) {
+    //         return false;
+    //       }
+    //       return date.getTime() > new Date(val).getTime();
+    //     }
+    //   };
+    // }
+  }
+};
+</script>

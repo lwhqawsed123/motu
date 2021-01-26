@@ -1,0 +1,664 @@
+<template>
+  <!-- 主播列表 -->
+  <div class="record">
+    <div class="record-conter">
+      <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
+        <el-col :span="24">
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <el-form-item label="注册日期：">
+              <!-- <el-date-picker
+                v-model="formInline.date"
+                type="datetimerange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                :default-time="['00:00:00','23:59:59']"
+                :clearable="false"
+                size="mini"
+                style="width:330px"
+                @change="onSubmit"
+              ></el-date-picker>-->
+              <dateTimePicker
+                v-if="formInline.date.startday"
+                :date="formInline.date"
+                @onSubmit="onSubmit"
+              ></dateTimePicker>
+            </el-form-item>
+            <el-form-item label="状态：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.status"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in statusOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.platform"
+                placeholder="请选择"
+                style="width:100px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in platformOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="性别：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.gender"
+                placeholder="请选择"
+                style="width:85px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in gengerOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="渠道包名：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.client_id"
+                placeholder="所有包"
+                style="width:85px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in channelOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="手机：">
+              <el-input
+                v-model.trim="formInline.mobile"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入"
+                clearable
+                size="mini"
+                maxlength="30"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="昵称：">
+              <el-input
+                v-model.trim="formInline.nickname"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入昵称关键字"
+                style="width:145px"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="短ID：">
+              <el-input
+                v-model.trim="formInline.username"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入短id"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="用户ID：">
+              <el-input
+                v-model.trim="formInline.userid"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入用户id"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="渠道号：">
+              <el-input
+                v-model.trim="formInline.channel"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入渠道号"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" icon="el-icon-search" @click="onSubmit" size="mini">查询</el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <my-table
+        :tableData="tableData"
+        :formInline="formInline"
+        :totalNum="totalNum"
+        :ext_stat="ext_stat"
+        :row-key="'id'"
+        @getOnlineList="getOnlineList"
+      >
+        <!-- <el-table
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        row-key="proprId"
+        @sort-change="sortChange"
+        >-->
+        <el-table-column type="index" min-width="50" label="编号"></el-table-column>
+        <!-- 用户信息 -->
+        <el-table-column show-overflow-tooltip min-width="70px">
+          <template slot="header">
+            <span>头像</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <div class="anchor-info cursor" @click="openDetail(scope.row.userid)">
+              <div class="profile-box">
+                <img :src="scope.row.avatar" alt class="profile" />
+              </div>
+              <br v-if="scope.row.status==='3'||scope.row.status==='2'" />
+              <span style="color:#f56c6c" v-if="scope.row.status==='3'">禁言</span>
+              <span style="color:#f56c6c" v-else-if="scope.row.status==='2'">封号</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip min-width="100px" label="昵称/ID">
+          <template slot-scope="scope">
+            <span class="visitor-info-name" title="用户昵称">{{scope.row.nickname}}</span>
+            <br />
+            <span
+              class="gender-men"
+              :class="scope.row.gender==='1'?'':'gender-women'"
+            >{{scope.row.age}}</span>
+            <span
+              class="el-icon-video-camera-solid verify_status"
+              title="视频认证"
+              v-if="scope.row.verify_status==='1'"
+            ></span>
+            <span title="短ID">{{scope.row.username}}</span>
+            <br />
+            <span title="用户ID">{{scope.row.userid}}</span>
+          </template>
+        </el-table-column>
+        <!-- 用户信息结束 -->
+        <el-table-column min-width="170" label="平台/版本/终端">
+          <template slot="header">
+            <span>平台/版本/终端</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <span>{{scope.row.platform}}</span>
+            <br />
+            <span>{{scope.row.version+"("+scope.row.build+")"}}</span>
+            <br />
+            <span>{{scope.row.branchs}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column min-width="130" label="包名/渠道">
+          <template slot="header">
+            <span>包名/渠道</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <span>{{checkChannel(scope.row.client_id)}}</span>
+            <br />
+            <span>{{scope.row.client_id}}</span>
+            <br />
+            <span>{{scope.row.channel}}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column show-overflow-tooltip prop="propName" label="备注" min-width="120px"></el-table-column> -->
+        <!-- <el-table-column prop="entrustNumber" label="工会" show-overflow-tooltip></el-table-column> -->
+        <!-- <el-table-column prop="orderMoney" label="平台" show-overflow-tooltip></el-table-column> -->
+        <el-table-column
+          show-overflow-tooltip
+          sortable="custom"
+          prop="registertime"
+          label="注册时间"
+          min-width="130"
+        >
+          <template slot-scope="scope">
+            <span>{{parseTime(scope.row.registertime)}}</span>
+            <br />
+            <span>{{scope.row.registerip}}</span>
+            <br />
+            <span>{{scope.row.location_registerip}}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          show-overflow-tooltip
+          sortable="custom"
+          prop="lastlogintime"
+          label="最近登陆"
+          min-width="130"
+        >
+          <template slot-scope="scope">
+            <span>{{parseTime(scope.row.lastlogintime)}}</span>
+            <br />
+            <span>{{scope.row.lastloginip}}</span>
+            <br />
+            <span>{{scope.row.location_lastloginip}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip sortable="custom" prop="status" label="状态">
+          <template slot-scope="scope">
+            <span v-if="scope.row.status==='1'">正常</span>
+            <span v-else-if="scope.row.status==='2'">禁用</span>
+            <span v-else>{{scope.row.status}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip label="操作" min-width="130px">
+          <template slot-scope="scope">
+            <el-button
+              icon="el-icon-view"
+              size="mini"
+              title="查看详情"
+              @click="openDetail(scope.row.userid)"
+            ></el-button>
+            <el-button
+              icon="el-icon-edit"
+              type="primary"
+              size="mini"
+              title="编辑"
+              @click="openEdit('编辑',scope.row.userid)"
+            ></el-button>
+          </template>
+        </el-table-column>
+        <!-- </el-table> -->
+      </my-table>
+      <!-- <my-pagination
+        v-show="totalNum>0"
+        :total="totalNum"
+        :page.sync="formInline.pageNum"
+        :limit.sync="formInline.pageSize"
+        :ext_stat="ext_stat"
+        @pagination="getOnlineList"
+      />-->
+    </div>
+    <!-- 用户详情组件 -->
+    <el-detail v-if="userDetail.userid" :userDetail="userDetail"></el-detail>
+    <!-- 修改详情弹框 -->
+    <el-dialog
+      @close="closeRulesFormDialog('ruleForm')"
+      id="ruleForm-dialog"
+      :title="ruleFormTitle"
+      :visible.sync="ruleFormDialog"
+      width="600px"
+      custom-class="common-dialog"
+    >
+      <el-form
+        :rules="rules"
+        :model="ruleForm"
+        label-width="100px"
+        label-position="right"
+        ref="ruleForm"
+      >
+        <el-form-item label="用户ID" prop="userid">
+          <el-input v-model="ruleForm.userid" maxlength="20" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="短ID" prop="username">
+          <el-input v-model="ruleForm.username" maxlength="20" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="用户昵称" prop="nickname">
+          <el-input v-model="ruleForm.nickname" placeholder maxlength="100" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="性别" prop="gender">
+          <el-select v-model="ruleForm.gender" placeholder="请选择" size="mini" style="width:100%">
+            <el-option
+              v-for="(item,index) in gengerOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="签名" prop="signtext">
+          <el-input
+            type="textarea"
+            resize="none"
+            :rows="2"
+            v-model="ruleForm.signtext"
+            maxlength="200"
+            show-word-limit
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="绑定手机号" prop="mobile">
+          <el-input v-model="ruleForm.mobile" maxlength="30" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="系统平台" prop="platform">
+          <el-input v-model="ruleForm.platform" maxlength="200" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="手机型号" prop="branchs">
+          <el-input v-model="ruleForm.branchs" maxlength="200" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="APP版本" prop="version">
+          <el-input v-model="ruleForm.version" maxlength="200" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="注册渠道" prop="channel">
+          <el-input v-model="ruleForm.channel" maxlength="200" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="注册包名" prop="client_id">
+          <el-input v-model="ruleForm.client_id" maxlength="200" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="ruleForm.status" placeholder="请选择" size="mini" style="width:100%">
+            <el-option
+              v-for="(item,index) in statusOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="closeRulesFormDialog('ruleForm')">取 消</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">保 存</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import {
+  list,
+  channel,
+  get_user_by_id,
+  get_for_edit,
+  save_edit,
+} from "@/api/central/users/list.js";
+import {
+  gengerOptions,
+  platformOptions,
+  statusOptions,
+} from "@/utils/options/common.js";
+export default {
+  name: "users",
+  data() {
+    return {
+      statusOptions: statusOptions,
+      platformOptions: platformOptions,
+      gengerOptions: gengerOptions,
+      // 总条数
+      totalNum: 0,
+      ext_stat: "", // 后端返回的统计
+      // 查询数据
+      formInline: {
+        date: {
+          startday: "",
+          endday: "",
+        }, // 日期
+        status: "", // 状态
+        mobile: "", // 手机号
+        platform: "", // 设备
+        nickname: "", // 昵称
+        userid: "", // 用户id
+        gender: "", // 性别
+        username: "", // 短ID
+        channel: "", // 渠道号
+        client_id: "", // 下拉框选择的渠道包
+        // // 排序列
+        // orderByColumn: "id",
+        // // 排序方式
+        // isAsc: "desc",
+        // 开始时间
+        startday: "",
+        //结束时间
+        endday: "",
+        // 当前显示条数
+        pageSize: 20,
+        // 当前显示页数
+        pageNum: 1,
+        offset: 0,
+      },
+      // 日期禁用项 禁用大于结束日期
+      startOptions: {
+        disabledDate: false,
+      },
+      // 日期禁用项 禁用小于开始日期
+      endOptions: {
+        disabledDate: false,
+      },
+      // 表格数据
+      tableData: [],
+      // 渠道包下拉框
+      channelOptions: [],
+
+      // ====用户详情弹框=====
+      userDetail: {
+        timestamp: "",
+        userid: "",
+      },
+      //====新增/修改=====
+      ruleFormDialog: false,
+      ruleFormTitle: "",
+      // 添加表单数据
+      ruleForm: {
+        userid: "",
+        username: "",
+        nickname: "",
+        gender: "1",
+        signtext: "",
+        mobile: "",
+        platform: "",
+        branchs: "",
+        version: "",
+        channel: "",
+        client_id: "",
+        status: "1",
+      },
+      // 表单验证
+      rules: {
+        userid: [{ required: true, message: "请输入用户ID", trigger: "blur" }],
+        username: [{ required: true, message: "请输入短ID", trigger: "blur" }],
+        nickname: [
+          { required: true, message: "请输入用户昵称", trigger: "blur" },
+        ],
+        gender: [{ required: true, message: "请选择性别", trigger: "change" }],
+        client_id: [
+          { required: true, message: "请输入注册包名", trigger: "blur" },
+        ],
+        status: [{ required: true, message: "请选择状态", trigger: "change" }],
+      },
+    };
+  },
+  created() {
+    // 获取默认开始时间和结束时间
+    // this.formInline.date=this.getDateNow()
+    this.formInline.date.startday = this.getDateNow()[0];
+    this.formInline.date.endday = this.getDateNow()[1];
+    // 调用 获取列表 方法
+    this.getOnlineList();
+    // 获取渠道包下拉框列表
+    this.getChannelList();
+  },
+  methods: {
+    // 查看
+    see(row) {
+      const obj = {
+        id: row.id,
+        orderNo: row.orderNo,
+      };
+      this.$emit("changePage", "SEE", obj);
+    },
+    onSubmit() {
+      this.getOnlineList();
+    },
+    // 获取列表
+    getOnlineList() {
+      let data = JSON.parse(JSON.stringify(this.formInline));
+      data.startday = data.date.startday;
+      data.endday = data.date.endday;
+      data.offset = (data.pageNum - 1) * data.pageSize;
+      delete data.date;
+      list(data).then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.tableData = xhrData.data.items;
+          this.totalNum = +xhrData.data.total_rows;
+          this.ext_stat = xhrData.data.ext_stat;
+        }
+      });
+    },
+    // 获取渠道包列表
+    getChannelList() {
+      channel().then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.channelOptions = xhrData.data;
+        }
+      });
+    },
+    // 筛选渠道包
+    checkChannel(client_id) {
+      let channelOptions = this.channelOptions.filter((item) => {
+        return item.value === client_id;
+      });
+      if (channelOptions.length) {
+        return channelOptions[0].label;
+      } else {
+        return "";
+      }
+    },
+    //  打开查看
+    openDetail(id) {
+      this.userDetail.timestamp = new Date().getTime();
+      this.userDetail.userid = id;
+    },
+    // 打开编辑弹框
+    async openEdit(title, id) {
+      this.ruleFormTitle = title;
+      if (title === "新增") {
+        this.ruleFormDialog = true;
+      } else if (title === "编辑") {
+        let res = await get_for_edit(id);
+        if (res && res.code === 0) {
+          this.ruleForm = res.data.item;
+          this.ruleFormDialog = true;
+        }
+      } else {
+        return false;
+      }
+    },
+    // 提交编辑
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let ruleForm = JSON.parse(JSON.stringify(this.ruleForm));
+          let data = {
+            id: ruleForm.id,
+            userid: ruleForm.userid,
+            username: ruleForm.username,
+            nickname: ruleForm.nickname,
+            gender: ruleForm.gender,
+            signtext: ruleForm.signtext,
+            mobile: ruleForm.mobile,
+            platform: ruleForm.platform,
+            branchs: ruleForm.branchs,
+            version: ruleForm.version,
+            channel: ruleForm.channel,
+            client_id: ruleForm.client_id,
+            status: ruleForm.status,
+          };
+
+          save_edit(data).then((res) => {
+            if (res && res.code === 0) {
+              this.$message.success({
+                message: res.info,
+              });
+              this.closeRulesFormDialog(formName);
+              this.getOnlineList();
+            }
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+    closeRulesFormDialog(formName) {
+      this.$refs[formName].resetFields();
+      this.ruleFormDialog = false;
+    },
+  },
+};
+</script>
+<style>
+/* 修改对话框整体 */
+.el-dialog {
+  border-radius: 5px;
+}
+/* 修改对话框中间部分 */
+.el-dialog__body {
+  padding-bottom: 0;
+}
+/* 修改对话框头部 */
+.el-dialog__header {
+  background-color: #e6e8eb;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+/* 修改对话框底部 */
+.el-dialog__footer {
+  padding: 10px;
+  background-color: #e6e8eb;
+}
+/* 修改对话框标题 */
+.el-dialog__title {
+  font-size: 20px;
+  font-weight: bold;
+}
+</style>
+<style lang="scss" scoped>
+@import "@/assets/styles/scss/list.scss";
+</style>
+<style lang="scss">
+.record {
+  // .el-date-editor--datetimerange.el-input__inner {
+  //   width: 340px;
+  // }
+  .record-top {
+    .el-form-item__label {
+      padding: 0;
+    }
+  }
+}
+.users-detail {
+  .el-dialog__body {
+    padding-bottom: 30px;
+  }
+}
+</style>

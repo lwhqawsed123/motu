@@ -1,0 +1,391 @@
+<template>
+  <!-- 主播审核 -->
+  <div class="record">
+    <div class="record-conter">
+      <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
+        <el-col :span="24">
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+             <el-form-item label="公会：">
+             <group-select :formInline="formInline" @onSubmit="onSubmit"></group-select>
+            </el-form-item>
+            <el-form-item label="手机号：">
+              <el-input
+                v-model.trim="formInline.orderNo"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入手机号"
+                clearable
+                size="mini"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" icon="el-icon-search" @click="onSubmit" size="mini">查询</el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <my-table
+        :tableData="tableData"
+        :formInline="formInline"
+        :totalNum="totalNum"
+        :ext_stat="ext_stat"
+        :row-key="'id'"
+        @getOnlineList="getOnlineList"
+      >
+        <!-- <el-table
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        row-key="proprId"
+        @sort-change="sortChange"
+        >-->
+        <el-table-column type="index" min-width="50" label="编号"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="审核状态"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="用户"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="年龄"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="地区"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="相册"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="自拍认证"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="动态视频"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="声音认证"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="身份证照片"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="身份证号"></el-table-column>
+        <el-table-column prop="status" min-width="50" label="审核">
+          <template slot="header">
+            <span>审核</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <a
+              href="javascript:;"
+              style="margin-right:3px; color: rgb(24, 144, 255);"
+              @click="openChattingRecords(scope.row.id)"
+            >审核</a>
+          </template>
+        </el-table-column>
+        <!-- </el-table> -->
+      </my-table>
+      <!-- <my-pagination
+        v-show="totalNum>0"
+        :total="totalNum"
+        :page.sync="formInline.pageNum"
+        :limit.sync="formInline.pageSize"
+        :ext_stat="ext_stat"
+        @pagination="getOnlineList"
+      />-->
+    </div>
+
+    <!-- 绑定主播 -->
+    <el-dialog
+      @close="resetForm('ruleForm')"
+      id="owner-dialog"
+      title="绑定主播到公会"
+      :visible.sync="bindDialog"
+      width="500px"
+      custom-class="common-dialog"
+    >
+      <el-form
+        :rules="rules"
+        :model="bindForm"
+        label-width="80px"
+        label-position="right"
+        ref="ruleForm"
+      >
+        <el-form-item label="主播手机" prop="proprName">
+          <el-input v-model="bindForm.proprName" maxlength="11" placeholder="请输入手机号"></el-input>
+        </el-form-item>
+        <el-form-item label="验证码" prop="proprMobile">
+          <el-row>
+            <el-col :span="10" style="margin-right:10px">
+              <el-input v-model="bindForm.proprMobile" maxlength="10" placeholder="请输入验证码"></el-input>
+            </el-col>
+
+            <el-col :span="10">
+              <el-button type="success" style="width:100%">获取手机验证码</el-button>
+            </el-col>
+          </el-row>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="owner-dialog-footer">
+        <!-- <a href="javascript:;" class="owner-btn btn1" @click="submitForm('ruleForm')">保存</a>
+        <a href="javascript:;" class="owner-btn btn2" @click="dialogVisible=false">关闭</a>-->
+        <el-button @click="bindDialog=false">取消</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 聊天记录弹框 -->
+    <el-dialog
+      @close="resetForm('ruleForm')"
+      id="owner-dialog"
+      width="865px"
+      :visible.sync="chattingRecordsDialog"
+      :show-close="false"
+      custom-class="chattingRecords"
+    >
+      <chattingRecords :id="chattingRecordsForm.id" @closeDialog="closeDialog"></chattingRecords>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+// import { list } from "@/api/anchors/list.js";
+import chattingRecords from "./chattingRecords.vue";
+export default {
+  name: "record",
+  components: {
+    chattingRecords: chattingRecords,
+  },
+  data() {
+    return {
+      // 总条数
+      totalNum: 0,
+      // 查询数据
+      formInline: {
+        // 催收函类型（1:在线、2:快递到物业、3:快递到业主）
+        lawyerType: 3,
+        // 物业公司
+        propId: "",
+        // 订单编号
+        orderNo: "",
+        // 审核状态
+        entrustStatus: "",
+        // 排序列
+        orderByColumn: "id",
+        // 排序方式
+        isAsc: "desc",
+        // 开始时间
+        beginTime: "",
+        //结束时间
+        endTime: "",
+        // 当前显示条数
+        pageSize: 10,
+        // 当前显示页数
+        pageNum: 1,
+      },
+      // 日期禁用项 禁用大于结束日期
+      startOptions: {
+        disabledDate: false,
+      },
+      // 日期禁用项 禁用小于开始日期
+      endOptions: {
+        disabledDate: false,
+      },
+      // 表格数据
+      tableData: [
+        {
+          anchor: {
+            name: "纳豆nado",
+            profile: "profile.jpg",
+            gender: 0,
+            online: 0,
+          },
+        },
+      ],
+
+      // 绑定到主播
+      bindDialog: false,
+      // ======绑定到主播=========
+      bindForm: {},
+      // ====聊天记录=====
+      chattingRecordsDialog: false,
+      chattingRecordsForm: {
+        id: "",
+      },
+    };
+  },
+  created() {
+    // 获取默认开始时间和结束时间
+    this.formInline.date.startday = this.getDateNow()[0];
+    this.formInline.date.endday = this.getDateNow()[1];
+    // 调用 获取在线委托列表 方法
+    // this.getOnlineList();
+  },
+  methods: {
+    // 查看
+    see(row) {
+      const obj = {
+        id: row.id,
+        orderNo: row.orderNo,
+      };
+      this.$emit("changePage", "SEE", obj);
+    },
+    onSubmit() {
+      this.formInline.pageNum=1
+      this.getOnlineList();
+    },
+    // 获取列表
+    getOnlineList() {
+      let data = JSON.parse(JSON.stringify(this.formInline));
+      data.startday = data.date.startday;
+      data.endday = data.date.endday;
+      data.offset = (data.pageNum - 1) * data.pageSize;
+      delete data.date;
+      list(data).then((xhrData) => {
+        if (xhrData.code === 200) {
+          this.tableData = xhrData.data.items;
+          this.ext_stat = xhrData.data.ext_stat;
+          this.totalNum = +xhrData.data.total_rows;
+        }
+      });
+    },
+    // 根据id单个审核
+    auditById(row, status) {
+      this.$confirm(
+        "审核通过后无法再更改审核状态，是否确定审核通过？",
+        "警告",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
+        .then(() => {
+          // let formData = new FormData();
+          // formData.append("examineStatus", status);
+          let data = {
+            id: row.id,
+            data: {
+              entrustStatus: status,
+            },
+          };
+          examineStatusEdit(data).then((res) => {
+            if (res.code === 200) {
+              this.$message.success({
+                message: "变更成功!",
+              });
+              this.getOnlineList();
+            } else if (res.code === 500) {
+              this.$message.error({
+                message: res.msg,
+              });
+            }
+          });
+        })
+        .catch(function () {});
+    },
+    // 打开聊天记录弹框
+    openChattingRecords(id) {
+      this.chattingRecordsForm.id = id;
+      this.chattingRecordsDialog = true;
+    },
+    // 子组件关闭窗口
+    closeDialog(params) {
+      this.chattingRecordsDialog = params;
+    },
+    // 导出按钮操作
+    handleExport() {
+      const formInline = JSON.parse(JSON.stringify(this.formInline));
+      if (!formInline.beginTime) {
+        delete formInline.beginTime;
+      }
+      if (!formInline.endTime) {
+        delete formInline.endTime;
+      }
+      formInline.pageSize = 9999999999;
+      this.$confirm("是否确认导出所有数据项?", "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          return onlineExport(formInline);
+        })
+        .then((response) => {
+          this.download(response.msg);
+        })
+        .catch(function () {});
+    },
+    // 批量下载(.zip格式)
+    downloadPDF(id) {
+      this.$confirm("是否确认下载pdf文件?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          onlineDownloadPDF(id)
+            .then((res) => {
+              // 必传后缀
+              this.downloadBlob(res, "律师函.zip");
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch(function () {});
+    },
+  },
+};
+</script>
+<style>
+/* 修改变更按钮 */
+/* .el-button--primary {
+  background-color: #ef8200 !important;
+  border: 1px solid #ce7000;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+} */
+/* 修改关闭按钮 */
+/* .el-button--default {
+  background-color: #f1f2f3;
+  border: 1px solid #cacbcc;
+  font-size: 14px;
+  font-weight: bold;
+} */
+/* 修改变更鼠标经过 */
+/* .el-button--primary:hover {
+  border: 1px solid #ce7000;
+} */
+/* 修改对话框整体 */
+.el-dialog {
+  border-radius: 5px;
+}
+/* 修改对话框中间部分 */
+.el-dialog__body {
+  padding-bottom: 0;
+}
+/* 修改对话框头部 */
+.el-dialog__header {
+  background-color: #e6e8eb;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+/* 修改对话框底部 */
+.el-dialog__footer {
+  padding: 10px;
+  background-color: #e6e8eb;
+}
+/* 修改对话框标题 */
+.el-dialog__title {
+  font-size: 20px;
+  font-weight: bold;
+}
+</style>
+<style lang="scss" scoped>
+@import "@/assets/styles/scss/list.scss";
+</style>
+<style lang="scss">
+.chattingRecords .el-dialog__header {
+  display: none !important;
+}
+.chattingRecords .el-dialog__body {
+  padding: 2px;
+  box-sizing: border-box;
+}
+.record {
+  .el-date-editor--daterange.el-input__inner {
+    width: 220px;
+  }
+  .record-top {
+    .el-form-item__label {
+      padding: 0;
+    }
+  }
+}
+</style>
+<style>
+</style>

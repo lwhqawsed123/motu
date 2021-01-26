@@ -1,0 +1,242 @@
+#loginForm .el-form-item--medium .el-form-item__content,
+#loginForm .el-form-item .login-input .is-required .el-form-item--medium {
+    text-align: center;
+    padding: 0 30px;
+    box-sizing: border-box;
+}
+
+#loginForm .el-checkbox__label {
+    font-size: 12px;
+}
+
+#loginForm .el-checkbox__input.is-checked .el-checkbox__inner {
+    background: #ef8200;
+    border: 1px solid #ef8200;
+}
+
+#loginForm .el-checkbox__input.is-focus .el-checkbox__inner {
+    border: 1px solid #ef8200;
+}
+
+#loginForm .login-input .el-input .el-input--medium .el-input--prefix {
+    height: 40px;
+}
+
+#loginForm .el-input__inner {
+    border: none;
+    border-bottom: 1px solid #ecedf0;
+    border-radius: 0;
+    height: 40px;
+    padding: 0 35px;
+    padding-left: 40px;
+    box-sizing: border-box;
+}
+//========ios兼容 光标大小===========
+#loginForm .login-input{
+    height:unset;
+
+}
+
+#loginForm .el-input__inner{
+    height: unset;
+    font-size: 14px;
+    line-height: 14px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 110px;
+}
+//========ios兼容 光标大小===========
+
+
+#loginForm .login-code img {
+    width: 100%;
+    height: 100%;
+}
+
+#loginForm .el-form-item__error {
+    margin-left: 40px;
+}
+
+#loginBtn {
+    height: 44px;
+    background: linear-gradient(270deg,
+            rgba(248, 184, 0, 1) 0%,
+            rgba(239, 130, 0, 1) 100%);
+    border-radius: 4px;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+#loginForm .login-p {
+    padding: 0 40px;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: #409eff;
+}
+
+#loginForm .login-p :hover {
+    cursor: pointer;
+    color: #66b1ff;
+    text-decoration: underline;
+}
+
+#loginForm .login-p a {
+    color: #51abff;
+    margin-left: 3px;
+}
+
+#loginForm .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #c1c1c1;
+}
+
+#loginForm input:-webkit-autofill {
+    box-shadow: 0 0 0px 1000px white inset !important;
+}
+.login-content {
+    height: 100%;
+    background-color: #eff0f4;
+    background-image: url("../assets/image/login-background.jpg");
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login {
+    display: flex;
+
+    .login-left {
+        flex: 1;
+        width: 400px;
+        background-color: #fb8333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .login-left-title {
+
+            // margin-top: 80px;
+            h2 {
+                text-align: center;
+                box-sizing: border-box;
+                color: #fff;
+                // text-shadow:5px 2px 6px #000;
+                font-size: 30px;
+            }
+        }
+    }
+}
+
+.logoTitle {
+    display: flex;
+
+    img {
+        display: block;
+        margin-top: 13px;
+    }
+
+    span {
+        display: block;
+        width: 1px;
+        height: 25px;
+        background-color: #343434;
+        margin-top: 13px;
+        margin-left: 14px;
+    }
+
+    h1.title {
+        font-size: 20px;
+        color: #343434;
+        margin-left: 12px;
+    }
+}
+
+.login-form {
+    // border-radius: 6px;
+    background: #ffffff;
+    width: 400px;
+    // padding: 25px 35px 5px 35px;
+    padding: 20px 40px;
+
+    .el-input {
+        height: 38px;
+
+        .el-input__inner {
+            border: none;
+            border-bottom: 1px solid #e6e8eb;
+        }
+
+        input {
+            height: 38px;
+        }
+    }
+
+    .input-icon {
+        height: 39px;
+        width: 14px;
+        margin-left: 2px;
+    }
+
+    .get-code-button {
+        font-style: normal;
+        display: inline-block;
+        padding: 10px 10px;
+        text-align: center;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        background-color: #13ce66;
+        border-color: #13ce66;
+        color: #fff;
+        font-size: 12px;
+        box-sizing: inherit;
+        border-radius: 3px;
+
+        &:hover {
+            background-color: #42d885;
+            border-color: #42d885;
+        }
+
+        &:active {
+            background-color: #11b95c;
+            border-color: #11b95c;
+        }
+    }
+
+    .disabled-class {
+        cursor: not-allowed;
+        background-color: #89e7b3;
+        border-color: #89e7b3;
+    }
+}
+
+.login-tip {
+    font-size: 13px;
+    text-align: center;
+    color: #bfbfbf;
+}
+
+.login-code {
+    width: 37%;
+    height: 38px;
+    float: right;
+
+    img {
+        cursor: pointer;
+        vertical-align: middle;
+    }
+}
+
+.el-login-footer {
+    height: 40px;
+    line-height: 40px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-family: Arial;
+    font-size: 12px;
+    letter-spacing: 1px;
+}

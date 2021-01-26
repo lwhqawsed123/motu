@@ -1,0 +1,620 @@
+<template>
+  <!-- 家财凭证管理 -->
+  <div class="record">
+    <div class="record-conter">
+      <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
+        <el-col :span="24">
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <el-form-item label="注册日期：">
+              <!-- <el-date-picker
+                v-model="formInline.date"
+                type="datetimerange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                :default-time="['00:00:00','23:59:59']"
+                :clearable="false"
+                size="mini"
+                style="width:330px"
+                @change="onSubmit"
+              ></el-date-picker>-->
+              <dateTimePicker
+                v-if="formInline.date.startday"
+                :date="formInline.date"
+                @onSubmit="onSubmit"
+              ></dateTimePicker>
+            </el-form-item>
+            <el-form-item label="用户ID：">
+              <el-input
+                v-model.trim="formInline.userid"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入用户ID"
+                clearable
+                size="mini"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="短ID：">
+              <el-input
+                v-model.trim="formInline.username"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入短ID"
+                clearable
+                size="mini"
+              ></el-input>
+            </el-form-item>
+            <!-- <el-form-item label="直播状态：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.state"
+                placeholder="全部"
+                style="width:120px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in liveingStateOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>-->
+            <el-form-item>
+              <el-button type="primary" icon="el-icon-search" @click="onSubmit" size="mini">查询</el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-button
+                type="warning"
+                plain
+                icon="el-icon-d-arrow-left"
+                @click="back"
+                size="mini"
+              >返回</el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <el-table
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        row-key="id"
+        @sort-change="sortChange"
+      >
+        <el-table-column prop="id" min-width="50" label="ID"></el-table-column>
+        <!-- 用户信息 -->
+        <el-table-column show-overflow-tooltip min-width="70px">
+          <template slot="header">
+            <span>头像</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <div class="anchor-info cursor" @click="openDetail(scope.row.userid)">
+              <div class="profile-box">
+                <img :src="scope.row.avatar" alt class="profile" />
+              </div>
+              <br v-if="scope.row.status==='3'||scope.row.status==='2'" />
+              <span style="color:#f56c6c" v-if="scope.row.status==='3'">禁言</span>
+              <span style="color:#f56c6c" v-else-if="scope.row.status==='2'">封号</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip min-width="100px" label="昵称/ID">
+          <template slot-scope="scope">
+            <span class="visitor-info-name" title="用户昵称">{{scope.row.nickname}}</span>
+            <br />
+            <span
+              class="gender-men"
+              :class="scope.row.gender==='1'?'':'gender-women'"
+            >{{scope.row.age}}</span>
+            <span
+              class="el-icon-video-camera-solid verify_status"
+              title="视频认证"
+              v-if="scope.row.verify_status==='1'"
+            ></span>
+            <span title="短ID">{{scope.row.username}}</span>
+            <br />
+            <span title="用户ID">{{scope.row.userid}}</span>
+          </template>
+        </el-table-column>
+        <!-- 用户信息结束 -->
+        <el-table-column prop="status" min-width="80" label="状态">
+          <template slot-scope="scope">{{scope.row.isliveing==='1'?'直播中':'未直播'}}</template>
+        </el-table-column>
+        <el-table-column prop="nickname" min-width="80" label="等级">
+          <template slot-scope="scope">
+            <span>{{scope.row.xingguang.title}}</span>
+            <br />
+            <span>魅力值：{{scope.row.charm}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="jifen_month" min-width="80" label="本月收益"></el-table-column>
+        <el-table-column prop="jifen_week" min-width="80" label="近七日收益"></el-table-column>
+        <!-- <el-table-column prop="timelong_month" min-width="80" label="本月有效直播时长"></el-table-column> -->
+        <!-- <el-table-column prop="usernum_month" min-width="80" label="本月累计有效观众数"></el-table-column> -->
+        <el-table-column min-width="140" label="操作">
+          <template slot-scope="scope">
+            <el-button
+              icon="el-icon-edit"
+              type="primary"
+              style="margin-bottom:5px"
+              plain
+              size="mini"
+              title="编辑"
+              @click="openOrder('编辑',scope.row.id)"
+            ></el-button>
+            <!-- <el-button
+              icon="el-icon-view"
+              size="mini"
+              title="直播数据"
+              style="margin-bottom: 5px;"
+              @click="see(scope.row)"
+            ></el-button>-->
+            <el-button
+              icon="el-icon-delete"
+              type="danger"
+              size="mini"
+              title="删除"
+              style="margin-bottom: 5px;"
+              plain
+              @click="deleteById(scope.row.id)"
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <my-pagination
+        v-show="totalNum>0"
+        :total="totalNum"
+        :page.sync="formInline.pageNum"
+        :limit.sync="formInline.pageSize"
+        :ext_stat="ext_stat"
+        @pagination="getOnlineList"
+      />
+    </div>
+    <!-- 用户详情组件 -->
+    <detail v-if="userDetail.userid" :userDetail="userDetail"></detail>
+    <!-- 修改弹框 -->
+    <el-dialog
+      @close="resetForm('ruleForm')"
+      id="owner-dialog"
+      :title="title"
+      :visible.sync="dialogVisible"
+      width="600px"
+      custom-class="common-dialog"
+    >
+      <el-form
+        :rules="rules"
+        :model="ownerForm"
+        label-width="120px"
+        label-position="left"
+        ref="ruleForm"
+      >
+        <el-form-item label="短ID（短ID、用户ID二选一）" prop="username">
+          <el-input v-model="ownerForm.username" maxlength="100"></el-input>
+        </el-form-item>
+        <el-form-item label="成员ID" prop="userid">
+          <el-input v-model="ownerForm.userid" maxlength="100" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="角色" prop="role">
+          <el-select v-model="ownerForm.role" placeholder="请选择" style="width:100%" size="mini">
+            <el-option
+              v-for="(item,index) in roleOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="公会ID" prop="groupid">
+          <el-input v-model="ownerForm.groupid" maxlength="100"></el-input>
+        </el-form-item>
+        <el-form-item label="分成计算方式" prop="commission_method">
+          <el-radio-group v-model="ownerForm.commission_method">
+            <el-radio
+              :label="item.value"
+              v-for="(item,index) in commissionMethodOptions"
+              :key="index"
+            >{{item.label}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="分成(%)" prop="rate" v-if="ownerForm.commission_method==='1'">
+          <el-input v-model="ownerForm.rate" maxlength="100"></el-input>
+        </el-form-item>
+        <el-form-item label="公会分成(%)" prop="group_rate">
+          <el-input v-model="ownerForm.group_rate" maxlength="100"></el-input>
+        </el-form-item>
+        <el-form-item label="成员分成(%)" prop="member_rate" v-if="ownerForm.commission_method==='1'">
+          <el-input v-model="ownerForm.member_rate" maxlength="100"></el-input>
+        </el-form-item>
+
+        <!-- <el-form-item label="计薪类型" prop="pay_mode">
+          <el-select v-model="ownerForm.pay_mode" placeholder="请选择" style="width:100%" size="mini">
+            <el-option
+              v-for="(item,index) in payModeOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>-->
+        <!-- <el-form-item label="结算周期" prop="pay_date">
+          <el-select v-model="ownerForm.pay_date" placeholder="请选择" style="width:100%" size="mini">
+            <el-option
+              v-for="(item,index) in payDateOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>-->
+        <el-form-item label="加入公会日期(yyyy-mm-dd)" prop="join_date">
+          <el-date-picker
+            v-model="ownerForm.join_date"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+            style="width:100%"
+          ></el-date-picker>
+        </el-form-item>
+        <!-- <el-form-item label="底薪(结算周期内薪资)" prop="salary_max">
+          <el-input v-model="ownerForm.salary_max" maxlength="100"></el-input>
+        </el-form-item>-->
+        <!-- <el-form-item label="主播奖励" prop="member_reward_rule">
+          <el-select
+            v-model="ownerForm.member_reward_rule"
+            placeholder="请选择"
+            style="width:100%"
+            size="mini"
+          >
+            <el-option
+              v-for="(item,index) in memberRewardRuleOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>-->
+        <!-- <el-form-item label="会长奖励" prop="group_reward_rule">
+          <el-select
+            v-model="ownerForm.group_reward_rule"
+            placeholder="请选择"
+            style="width:100%"
+            size="mini"
+          >
+            <el-option
+              v-for="(item,index) in groupRewardRuleOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>-->
+        <el-form-item label="自主提现" prop="withdraw_enable">
+          <el-checkbox v-model="ownerForm.withdraw_enable" true-label="1" false-label="0">允许</el-checkbox>
+        </el-form-item>
+        <el-form-item label="公会备注" prop="memo">
+          <el-input
+            type="textarea"
+            v-model="ownerForm.memo"
+            maxlength="255"
+            row="3"
+            resize="none"
+            show-word-limit
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="owner-dialog-footer">
+        <a href="javascript:;" class="owner-btn btn1" @click="submitForm('ruleForm')">保存</a>
+        <a href="javascript:;" class="owner-btn btn2" @click="resetForm('ruleForm')">关闭</a>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import {
+  list,
+  get_by_id,
+  save_edit,
+  delete_by_id,
+} from "@/api/organization/unions/see.js";
+import { liveingStateOptions } from "@/utils/options/common.js";
+import {
+  commissionMethodOptions,
+  roleOptions,
+  payModeOptions,
+  payDateOptions,
+  memberRewardRuleOptions,
+  groupRewardRuleOptions,
+} from "@/utils/options/organization.js";
+import { preMonthToToday } from "@/utils/common";
+import detail from "@/views/common_components/detail/detail.vue";
+
+export default {
+  name: "Unions_see",
+  props: ["obj"],
+  components: {
+    detail,
+  },
+  data() {
+    return {
+      commissionMethodOptions,
+      liveingStateOptions,
+      roleOptions,
+      payModeOptions,
+      payDateOptions,
+      memberRewardRuleOptions,
+      groupRewardRuleOptions,
+      // 总条数
+      totalNum: 0,
+      ext_stat: "",
+      // 查询数据
+      formInline: {
+        date: {
+          startday: "",
+          endday: "",
+        }, // 日期
+        userid: "",
+        username: "",
+        // state: "", // 不需要直播状态
+        // 排序列
+        // orderByColumn: "id",
+        // 排序方式
+        // isAsc: "desc",
+        // 当前显示条数
+        pageSize: 20,
+        // 当前显示页数
+        pageNum: 1,
+      },
+      // 日期禁用项 禁用大于结束日期
+      startOptions: {
+        disabledDate: false,
+      },
+      // 日期禁用项 禁用小于开始日期
+      endOptions: {
+        disabledDate: false,
+      },
+      // ====用户详情弹框=====
+      userDetail: {
+        timestamp: "",
+        userid: "",
+      },
+      // 表格数据
+      tableData: [],
+      // 新增/编辑 对话框
+      dialogVisible: false,
+      title: "标题",
+      //====新增/修改=====
+      // 表单数据
+      ownerForm: {
+        name: "",
+        loginuser: "",
+        create_userid: "",
+        account_type: "",
+        commission_method: "",
+        rate: "",
+        group_rate: "",
+        member_rate: "",
+        account_name: "",
+        account_branchs: "",
+        account_num: "",
+        status: "",
+        memo: "",
+      },
+      // 表单验证
+      rules: {
+        // 新地址
+        houseAddress: [
+          { required: true, message: "请输入新地址", trigger: "blur" },
+        ],
+        // 门牌号
+        houseNumber: [
+          { required: true, message: "请输入门牌号", trigger: "blur" },
+        ],
+      },
+    };
+  },
+  created() {
+    // 获取默认开始时间和结束时间
+    this.formInline.date.startday = preMonthToToday()[0];
+    this.formInline.date.endday = preMonthToToday()[1];
+    // 调用 获取列表 方法
+    this.getOnlineList();
+  },
+  methods: {
+    // 返回
+    back() {
+      const obj = {
+        id: this.obj.id,
+      };
+      this.$emit("changePage", "LIST", obj);
+    },
+    // 主播数据
+    see(row) {
+      const obj = {
+        id: this.obj.id,
+        userid: row.userid,
+      };
+      this.$emit("changePage", "ANCHOR", obj);
+    },
+    // 子组件调用路由跳转
+    changePage(page, obj) {
+      this.$emit("changePage", page, obj);
+    },
+    onSubmit() {
+      this.getOnlineList();
+    },
+    // 获取列表
+    getOnlineList() {
+      let data = JSON.parse(JSON.stringify(this.formInline));
+      data.groupid = this.obj.id;
+      data.startday = data.date.startday;
+      data.endday = data.date.endday;
+      data.offset = (data.pageNum - 1) * data.pageSize;
+      delete data.date;
+      console.log(data);
+      list(data).then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.tableData = xhrData.data.items;
+          this.ext_stat = xhrData.data.ext_stat;
+          this.totalNum = +xhrData.data.total_rows;
+        }
+      });
+    },
+    // 打开查看详情
+    async openOrder(title, id) {
+      this.title = title;
+      if (title === "新增") {
+        this.dialogVisible = true;
+      } else if (title === "编辑") {
+        let res = await get_by_id(id);
+        if (res && res.code === 0) {
+          this.ownerForm = res.data.item;
+          this.dialogVisible = true;
+        }
+      }
+    },
+    // 表格排序方式变化
+    sortChange({ column, prop, order }) {
+      console.log(order);
+      // prop : 字段名; order : 排序方式
+      this.formInline.orderByColumn = prop;
+      let orderBy = "DESC";
+      if (order === "ascending") {
+        orderBy = "ASC";
+      }
+      this.formInline.isAsc = orderBy;
+    },
+
+    handleCurrentChange(val) {
+      // 改变默认的页数
+      this.formInline.pageNum = val;
+      // 切换页码时，要获取每页显示的条数
+      this.getOnlineList();
+    },
+    // 提交编辑
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let data = JSON.parse(JSON.stringify(this.ownerForm));
+          if (data.commission_method === "2") {
+            data.rate = 0;
+            data.member_rate = 0;
+          }
+          console.log(data);
+          save_edit(data).then((res) => {
+            if (res.code === 0) {
+              this.$message.success(res.info);
+              this.$refs[formName].resetFields();
+              this.getOnlineList();
+              this.dialogVisible = false;
+            }
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+
+    // 重置表单
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+      this.dialogVisible = false;
+    },
+    // 删除
+    deleteById(id) {
+      this.$confirm("是否删除当前项?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        delete_by_id(id).then((res) => {
+          if (res.code === 0) {
+            this.$message.success(res.info);
+          }
+        });
+      });
+    },
+    //  打开查看用户信息
+    openDetail(id) {
+      this.userDetail.timestamp = new Date().getTime();
+      this.userDetail.userid = id;
+    },
+  },
+};
+</script>
+<style>
+/* 修改变更按钮 */
+/* .el-button--primary {
+  background-color: #ef8200 !important;
+  border: 1px solid #ce7000;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+} */
+/* 修改关闭按钮 */
+/* .el-button--default {
+  background-color: #f1f2f3;
+  border: 1px solid #cacbcc;
+  font-size: 14px;
+  font-weight: bold;
+} */
+/* 修改变更鼠标经过 */
+/* .el-button--primary:hover {
+  border: 1px solid #ce7000;
+} */
+/* 修改对话框整体 */
+.el-dialog {
+  border-radius: 5px;
+}
+/* 修改对话框中间部分 */
+.el-dialog__body {
+  padding-bottom: 0;
+}
+/* 修改对话框头部 */
+.el-dialog__header {
+  background-color: #e6e8eb;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+/* 修改对话框底部 */
+.el-dialog__footer {
+  padding: 10px;
+  background-color: #e6e8eb;
+}
+/* 修改对话框标题 */
+.el-dialog__title {
+  font-size: 20px;
+  font-weight: bold;
+}
+</style>
+<style lang="scss" scoped>
+@import "@/assets/styles/scss/list.scss";
+</style>
+<style lang="scss">
+.chattingRecords .el-dialog__header {
+  display: none !important;
+}
+.chattingRecords .el-dialog__body {
+  padding: 2px;
+  box-sizing: border-box;
+}
+.record {
+  .el-date-editor--daterange.el-input__inner {
+    width: 220px;
+  }
+  .record-top {
+    .el-form-item__label {
+      padding: 0;
+    }
+  }
+}
+</style>
+<style>
+</style>

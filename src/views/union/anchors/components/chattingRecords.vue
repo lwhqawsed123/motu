@@ -1,0 +1,756 @@
+<template>
+  <el-dialog
+    id="owner-dialog"
+    width="865px"
+    :visible.sync="chattingRecordsDialog"
+    :show-close="false"
+    custom-class="chattingRecords"
+  >
+    <el-container class="chatting-records" v-loading="loading">
+      <div class="anchor-info">
+        <el-popover placement="left" trigger="click">
+          <div class="hover-anchor-info">
+            <div class="hover-anchor-info-left">
+              <div class="anchor-info-id">
+                <span>ID:{{anchorForm.userid}}</span>
+                <span class="iconfont icon-ios" v-if="anchorForm.platform==='ios'"></span>
+                <span class="iconfont icon-anzhuo" v-else></span>
+              </div>
+              <div class="anchor-info-name">
+                <span class="iconfont icon-nan icon-gender-men" v-if="anchorForm.gender==='1'"></span>
+                <span class="iconfont icon-nan icon-gender-women" v-else></span>
+                <span class="visitor-info-name">{{anchorForm.nickname}}</span>
+                <!-- <span class="iconfont icon-maikefeng maikefeng"></span> -->
+                <span class="anchor-info-username">[{{anchorForm.username}}]</span>
+              </div>
+              <div class="anchor-info-information">
+                <span class="anchor-info-age">{{anchorForm.age}}岁</span>
+                <span>|</span>
+                <span class="anchor-info-level">LV{{anchorForm.charm_level}}</span>
+                <span>|</span>
+                <span class="anchor-info-address">{{anchorForm.location_lastloginip}}</span>
+              </div>
+              <div class="anchor-info-picture-box">
+                <img :src="anchorForm.avatar" alt class="picture" />
+              </div>
+              <div class="anchor-info-detail-buttons">
+                <div class="anchor-info-detail-buttons-first">
+                  <div
+                    class="link-button to-call-records cursor"
+                    @click="navigateTo('union/callRecords',anchorForm.username)"
+                  >通话记录</div>
+                  <div
+                    class="link-button to-diamonds cursor"
+                    @click="navigateTo('union/diamonds',anchorForm.username)"
+                  >钻石流水</div>
+                </div>
+                <!-- <div
+                  class="link-button to-chatt-records cursor"
+                  @click="navigateTo('union/chattingRecords',anchorForm.userid)"
+                >聊天记录</div>-->
+              </div>
+            </div>
+            <div class="hover-anchor-info-right">
+              <el-form :model="anchorForm" label-width="80px" label-position="right" ref="ruleForm">
+                <el-form-item label="公会备注" prop="remark">
+                  <span class="form-item-content">{{anchorForm.group_memo}}</span>
+                </el-form-item>
+                <el-form-item label="手机号" prop="mobile">
+                  <span class="form-item-content">{{anchorForm.mobile}}</span>
+                </el-form-item>
+                <el-form-item label="魅力值" prop="charm">
+                  <span class="form-item-content">{{format(anchorForm.charm)}}</span>
+                </el-form-item>
+                <el-form-item label="钻石余额" prop="diamonds">
+                  <span class="form-item-content">{{format(anchorForm.diamonds)}}</span>
+                </el-form-item>
+                <el-form-item label="注册" prop="createdTime">
+                  <span class="form-item-content">{{anchorForm.registertime}}</span>
+                </el-form-item>
+                <el-form-item label="登陆" prop="loginTime">
+                  <span class="form-item-content">{{anchorForm.lastlogintime}}</span>
+                </el-form-item>
+                <el-form-item label="会员到期" prop="expirationTime">
+                  <span class="form-item-content">{{anchorForm.user_vip_time}}</span>
+                </el-form-item>
+              </el-form>
+            </div>
+          </div>
+          <div class="profile-box cursor" slot="reference">
+            <span class="profile-status" v-if="anchorForm.online"></span>
+            <span class="profile-status outline" v-else></span>
+            <img :src="anchorForm.avatar" alt class="profile" />
+          </div>
+        </el-popover>
+      </div>
+      <el-aside width="250px" style="background-color: #e7e7e7" class="chatting-aside">
+        <el-row>
+          <el-col class="visitor" ref="visitor">
+            <el-row
+              class="visitor-item cursor"
+              :class="item.userid===checkedUser.userid?'active':''"
+              v-for="(item,index) in friendList"
+              :key="index"
+              @click.native="checkChatting(item)"
+            >
+              <el-col class="visitor-info-box">
+                <div class="profile-box">
+                  <span class="profile-status" v-if="!item.online"></span>
+                  <span class="profile-status outline" v-else></span>
+                  <img :src="item.avatar" alt class="profile" />
+                </div>
+                <div class="visitor-info">
+                  <div class="visitor-info-header">
+                    <span class="iconfont icon-nan icon-gender-men" v-if="item.gender==='1'"></span>
+                    <span class="iconfont icon-nan icon-gender-women" v-else></span>
+                    <span class="visitor-info-name">{{item.nickname}}</span>
+                    <span class="chatting-created-time">{{msgTime(item.lastmsg.msgTime)}}</span>
+                  </div>
+                  <div class="visitor-info-content">{{msgType(item.lastmsg)}}</div>
+                </div>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-aside>
+
+      <el-container class="chat-window">
+        <el-header style="text-align: right; font-size: 10px" class="chat-window-header">
+          <span class="iconfont icon-guding icon-font-size icon-top-right"></span>
+          <span class="iconfont icon-minimum icon-font-size icon-top-right"></span>
+          <span class="iconfont icon-fangkuang icon-font-size icon-top-right"></span>
+          <span class="iconfont icon-cha icon-font-size icon-close-button cursor" @click="close"></span>
+          <span class="visitor-nickname">{{checkedUser.nickname}}</span>
+        </el-header>
+
+        <el-main class="chat-window-content" ref="chatting-main">
+          <div ref="chatting-content">
+            <div class="loadmore cursor" @click="loadMore">
+              <span class="el-icon-loading" v-if="loadText==='加载中...'"></span>
+              {{loadText}}
+            </div>
+            <div
+              class="chatt-records-item-box"
+              v-for="(item,index) in chattingRecords"
+              :key="index"
+            >
+              <div class="chatting-time" v-if="item.showTime">{{item.createdTime}}</div>
+              <div
+                class="chatt-records-item"
+                :class="item.fromid===anchorForm.userid?'visitor-chatt-records':'anchor-chatt-records'"
+              >
+                <div class="profile-box">
+                  <img
+                    :src="item.fromid===anchorForm.userid?item.f_avatar:item.t_avatar"
+                    alt
+                    class="profile"
+                  />
+                </div>
+                <!-- 消息内容/普通自定义消息 -->
+
+                <div class="chatt-records-message" v-if="item.msgtype==='TEXT'">
+                  <span class="triangle-before"></span>
+                  <span class="chatt-records-text">{{item.msgcontent}}</span>
+                </div>
+                <div class="chatt-records-message" v-else-if="item.cmd==='TEXT'">
+                  <span class="triangle-before"></span>
+                  <span class="chatt-records-text">{{item.msgcontent.info.msg}}</span>
+                </div>
+                <div
+                  class="chatt-records-message no-padding no-background"
+                  v-else-if="item.cmd==='gift'"
+                >
+                  <div
+                    class="chatt-records-gift"
+                    :class="item.fromid===anchorForm.userid?'':'chatt-records-gift-reverse'"
+                  >
+                    <img :src="item.msgcontent.info.gift.src" alt class="chatt-records-gift-image" />
+                    <span class="chatt-records-gift-name">
+                      <span>{{item.msgcontent.info.gift.name}}</span>
+                      <span>x</span>
+                      <span>{{item.msgcontent.info.number}}</span>
+                    </span>
+                  </div>
+                </div>
+                <div
+                  class="chatt-records-message no-padding no-background set-border"
+                  v-else-if="item.msgtype==='PICTURE'"
+                >
+                  <el-image
+                    class="chatt-records-image"
+                    :src="item.msgcontent.url"
+                    fit="contain"
+                    lazy
+                    :preview-src-list="previewImageList"
+                  >
+                    <div slot="error" class="image-slot">
+                      <i class="el-icon-picture-outline"></i>
+                    </div>
+                  </el-image>
+                </div>
+                <div
+                  class="chatt-records-message no-padding no-background"
+                  v-else-if="item.msgtype==='AUDIO'"
+                >
+                  <span class="triangle-before"></span>
+                  <div
+                    class="chatt-records-audio"
+                    :class="item.fromid===anchorForm.userid?' ':'chatt-records-audio-reverse'"
+                  >
+                    <span>{{setAudioSec(item.msgcontent)}}</span>
+                    <div class="audio-button cursor" @click="playAudio(item)">
+                      <span :style="{width:setAudioLength(item.msgcontent)}" class="empty-span"></span>
+                      <span class="iconfont icon-saying margin-left" v-if="!item.playStatus"></span>
+                      <span class="iconfont icon-zanting margin-left" v-if="item.playStatus"></span>
+                      <span style="diaplay:none">
+                        <audio :ref="'audio'+item.id" :src="item.msgcontent.url"></audio>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="chatt-records-message no-padding no-background"
+                  v-else-if="item.msgtype==='VIDEO'"
+                >
+                  <div class="chatt-records-video">
+                    <video :src="item.msgcontent.url" class="video-player" controls></video>
+                  </div>
+                </div>
+                <div
+                  class="chatt-records-message no-padding no-background"
+                  v-else-if="item.msgtype==='CUSTOM'&&item.msgcontent.type===1"
+                >
+                  <div
+                    class="custom-image shitou-jian-daobu sjd-shitou"
+                    alt
+                    v-if="item.msgcontent.data.value===1"
+                  ></div>
+                  <div
+                    class="custom-image shitou-jian-daobu sjd-jiandao"
+                    alt
+                    v-else-if="item.msgcontent.data.value===2"
+                  ></div>
+                  <div
+                    class="custom-image shitou-jian-daobu sjd-bu"
+                    alt
+                    v-else-if="item.msgcontent.data.value===3"
+                  ></div>
+                </div>
+                <div class="chatt-records-message" v-else>
+                  <span class="triangle-before"></span>
+                  <span class="chatt-records-text">{{item.msgcontent}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </el-main>
+        <el-footer class="chat-window-footer">
+          <div class="chat-window-footer-top">
+            <div class="chat-window-top-left">
+              <span class="iconfont icon-biaoqing icon-font-size icon-top-right"></span>
+              <span class="iconfont icon-wenjianjia icon-font-size icon-top-right"></span>
+              <span class="iconfont icon-jianqie icon-font-size icon-top-right"></span>
+              <span class="iconfont icon-liaotianjilu icon-font-size"></span>
+            </div>
+            <div class="chat-window-top-right">
+              <span class="iconfont icon-weibiaoti- icon-font-size icon-top-right"></span>
+              <span class="iconfont icon-video_icon icon-font-size"></span>
+            </div>
+          </div>
+          <div class="chat-window-footer-content"></div>
+          <div class="chat-window-footer-bottom">
+            <div class="chat-window-bottom-buttons">
+              <span>发送(Enter)</span>
+              <span class="bottom-button-line"></span>
+              <span class="bottom-button">
+                跳过
+                <span class="iconfont icon-xiayishou_huaban icon-font-size"></span>
+              </span>
+            </div>
+          </div>
+        </el-footer>
+      </el-container>
+    </el-container>
+  </el-dialog>
+</template>
+
+<script>
+import { userFriends, get_anchor_by_id } from "@/api/union/anchors/list.js";
+import { list } from "@/api/union/anchors/chatting.js";
+import { msgTypeOptions } from "@/utils/options/common";
+import { Loading } from "element-ui";
+export default {
+  name: "",
+  props: ["chattingData"],
+  data() {
+    return {
+      id: this.userId,
+      formInline: {
+        groupid: this.$store.state.user.groupInfo.id,
+        pageNum: 1,
+        pageSize: 20,
+        offset: 0,
+        f_username: "",
+        t_username: "",
+        endday: "",
+      },
+      intervalTime: 0,
+      scrollHeight: 0,
+      chattingRecords: [],
+      chattingRecordsDialog: false,
+      msgTypeOptions,
+      friendList: [], // 好友列表
+      checkedUser: {}, // 当前选择的好友
+      loadText: "点击查看更多",
+      time: null,
+      anchorForm: {},
+      // 图片预览数组
+      previewImageList: [],
+      loading: false,
+    };
+  },
+
+  components: {},
+
+  watch: {
+    chattingData: {
+      handler: function (val, oldVal) {
+        this.formInline.endday = this.parseTime(new Date());
+        this.formInline.pageNum = 1;
+        this.checkedUser = {};
+        this.chattingRecords = [];
+        if (val.userid) {
+          this.getUserInfo(val.userid);
+          this.getFriends(val.userid);
+        }
+      },
+      deep: true,
+    },
+  },
+
+  beforeMount() {},
+  created() {
+    this.getUserInfo(this.chattingData.userid);
+    this.getFriends(this.chattingData.userid);
+    console.log("created");
+  },
+  mounted() {},
+
+  methods: {
+    // 设置滚动事件
+    setScrollEvent() {
+      const container = this.$refs["chatting-main"].$el;
+      container.addEventListener("scroll", (e) => {
+        //滑到顶部时触发下次数据加载
+        if (e.target.scrollTop == 0 && this.time === null) {
+          if (this.loadText === "没有更多数据了") {
+            return;
+          }
+          this.time = true;
+          //将scrollTop置为10以便下次滑到顶部
+          // e.target.scrollTop = 10;
+          //加载数据
+
+          if (!this.loading) {
+            this.getList();
+          }
+        }
+      });
+    },
+    // 获取用户好友列表
+    getFriends(id) {
+      this.chattingRecordsDialog = true;
+      this.loading=true
+      userFriends(id).then((res) => {
+        if (res && res.code === 0) {
+          this.friendList = res.data || [];
+          if (res.data && res.data.length) {
+            this.checkedUser = res.data[0];
+            this.chattingRecords = [];
+            this.getList();
+            this.$nextTick(() => {
+              this.setScrollEvent();
+            });
+          } else {
+            this.checkedUser = {};
+            this.chattingRecords = [];
+          }
+        }
+      });
+    },
+    // 获取用户详情
+    getUserInfo(id) {
+      get_anchor_by_id(id).then((res) => {
+        if (res && res.code === 0) {
+          this.anchorForm = res.data;
+        }
+      });
+    },
+    // 点击好友列表
+    checkChatting(row) {
+      if (this.checkedUser.userid === row.userid) {
+        return false;
+      }
+      this.checkedUser = row;
+      this.chattingRecords = [];
+      this.formInline.pageNum = 1;
+      this.formInline.endday = this.parseTime(new Date());
+      this.getList();
+    },
+    // 点击加载更多
+    loadMore() {
+      if (this.loadText === "没有更多数据了") {
+        return;
+      }
+      let timeNow = new Date().getTime();
+      if (timeNow - this.intervalTime <= 2000) {
+        return false;
+      }
+      if (this.time) {
+        return false;
+      }
+      this.intervalTime = timeNow;
+      this.getList();
+    },
+    // 保持更新数据时,滚动条保持不动
+    scrollTo() {
+      let chattingContent = this.$refs["chatting-content"];
+      let scrollHeight = chattingContent.scrollHeight - this.scrollHeight;
+      // if (trigger) {
+      //   scrollHeight = 9999999999999999;
+      // }
+      this.$refs["chatting-main"].$el.scrollTop = scrollHeight;
+      this.scrollHeight = chattingContent.scrollHeight;
+    },
+    // 从后端请求新的聊天记录
+    getList() {
+      this.loading = true;
+      // axios请求
+      let data = {
+        f_username: this.checkedUser.from_username,
+        t_username: this.checkedUser.to_username,
+        offset: (this.formInline.pageNum - 1) * this.formInline.pageSize,
+      };
+
+      list(data)
+        .then((xhrRes) => {
+          // this.$axios.get("/cdr/msg/ajaxsearch/").then(xhrRes => {
+          // let res = xhrRes.data;
+          let res = xhrRes;
+          res.data.items.forEach((item) => {
+            if (this.isJSON(item.msgcontent)) {
+              if (
+                item.cmd === "TEXT" ||
+                item.cmd === "gift" ||
+                item.msgtype === "TEXT" ||
+                item.msgtype === "PICTURE" ||
+                item.msgtype === "AUDIO" ||
+                item.msgtype === "VIDEO" ||
+                item.msgtype === "CUSTOM"
+              ) {
+                item.msgcontent = JSON.parse(item.msgcontent);
+              }
+            }
+          });
+          if (res && res.code === 0) {
+            let resData = res.data.items;
+            let newArray = resData.reverse(); // 反转数组
+            // 聊天记录去重
+            // let newArray = resData.map(item => {
+            //   let flag = true;
+            //   this.chattingRecords.forEach(list => {
+            //     if (item.id === list.id) {
+            //       flag = false;
+            //     }
+            //   });
+            //   if (flag) {
+            //     return item;
+            //   }
+            // });
+            // 是否展示时间
+            newArray.forEach((item, index) => {
+              this.$set(item, "showTime", true);
+              let prevTime = 0;
+              let thisTime = new Date(item.createdTime).getTime();
+              if (index !== 0) {
+                prevTime = new Date(newArray[index - 1].createdTime).getTime();
+              }
+              if (prevTime && thisTime - prevTime < 60 * 5 * 1000) {
+                item.showTime = false;
+              }
+            });
+            this.loadText = "加载中...";
+            this.formInline.pageNum++;
+            setTimeout(() => {
+              this.chattingRecords.unshift(...newArray);
+              this.chattingRecords.forEach((item) => {
+                this.$set(item, "playStatus", false);
+              });
+              this.previewImageList = this.chattingRecords.map((item) => {
+                if (item.msgtype === "PICTURE") {
+                  return item.msgcontent.url;
+                }
+              });
+              this.time = null;
+              this.$nextTick(() => {
+                this.scrollTo();
+              });
+              if (this.chattingRecords.length >= res.data.total_rows) {
+                this.loadText = "没有更多数据了";
+              } else {
+                this.loadText = "点击查看更多";
+              }
+              this.loading = false;
+            }, 2000);
+          }
+        })
+        .catch((err) => {
+          this.loading = false;
+        });
+
+      // console.log(this.$refs["chatting-content"].offsetHeight);
+    },
+    // 下拉更新
+    pullDownRefresh(e) {
+      //这里的2秒钟定时是为了避免滑动频繁，节流
+      console.log(this.time);
+
+      if (this.time == null && e.target.scrollTop == 0) {
+        // this.time = setTimeout(() => {
+        //   console.log("正在更新");
+        //   //滑到顶部时触发下次数据加载
+        //   if (e.target.scrollTop == 0) {
+        //     //将scrollTop置为10以便下次滑到顶部
+        //     e.target.scrollTop = 10;
+        //     //加载数据
+        //     this.getList();
+        //     //这里的定时是为了在列表渲染之后才使用scrollTo。
+        //     // setTimeout(() => {
+        //     //   e.target.scrollTo(0, this.scrollHeight - 30); //-30是为了露出最新加载的一行数据
+        //     // }, 100);
+        //     this.time = null;
+        //   }
+        // }, 2000);
+        //将scrollTop置为10以便下次滑到顶部
+        e.target.scrollTop = 10;
+        this.time = true;
+        this.loadText = "加载中...";
+
+        //加载数据
+        this.getList();
+        //这里的定时是为了在列表渲染之后才使用scrollTo。
+        // setTimeout(() => {
+        //   e.target.scrollTo(0, this.scrollHeight - 30); //-30是为了露出最新加载的一行数据
+        // }, 100);
+      }
+    },
+    // 关闭窗口
+    close() {
+      this.chattingRecordsDialog = false;
+    },
+    // 计算距离当前时间的 天/小时/分钟
+    get_time_diff(createdTime) {
+      var time = new Date(createdTime).getTime();
+      var diff = "";
+      var time_diff = new Date().getTime() - time;
+      // 计算相差天数
+      var days = Math.floor(time_diff / (24 * 3600 * 1000));
+      if (days > 30) {
+        return createdTime.slice(0, 10);
+      }
+      if (days > 0) {
+        diff += days + "天";
+      }
+      if (days > 3) {
+      }
+      // 计算相差小时数
+      var leave1 = time_diff % (24 * 3600 * 1000);
+      var hours = Math.floor(leave1 / (3600 * 1000));
+      if (hours > 0) {
+        if (hours < 10) {
+          hours = "0" + hours;
+        }
+        diff += hours + "小时";
+      } else {
+        if (diff !== "") {
+          diff += hours + "小时";
+        }
+      }
+      // 计算相差分钟数
+      var leave2 = leave1 % (3600 * 1000);
+      var minutes = Math.floor(leave2 / (60 * 1000));
+      if (minutes > 0) {
+        if (minutes < 10) {
+          minutes = "0" + minutes;
+        }
+        diff += minutes + "分";
+      } else {
+        if (diff !== "") {
+          diff += minutes + "分";
+        }
+      }
+      // 计算相差秒数
+      // var leave3 = leave2%(60*1000);
+      // var seconds = Math.round(leave3/1000);
+      // if (seconds > 0) {
+      //     diff += seconds + '秒';
+      // } else {
+      //     if (diff !== '') {
+      //         diff += seconds + '秒';
+      //     }
+      // }
+
+      return diff;
+    },
+    // 千位符分隔
+    format(num) {
+      if (!num) {
+        return 0;
+      }
+      num = num + ""; //数字转字符串
+      var str = ""; //字符串累加
+      for (var i = num.length - 1, j = 1; i >= 0; i--, j++) {
+        if (j % 3 == 0 && i != 0) {
+          //每隔三位加逗号，过滤正好在第一个数字的情况
+          str += num[i] + ","; //加千分位逗号
+          continue;
+        }
+        str += num[i]; //倒着累加数字
+      }
+      return str.split("").reverse().join(""); //字符串=>数组=>反转=>字符串
+    },
+    // 设置最后一条消息的内容
+    msgType(msg) {
+      let msgType = "";
+      let content = "";
+      this.msgTypeOptions.forEach((item) => {
+        if (item.value === msg.msgType) {
+          if (item.value === "PERSON" || item.value === "CUSTOM") {
+            content = msg.msgcontent;
+          } else if (item.value === "PICTURE") {
+            content = "[图片]";
+          } else if (item.value === "AUDIO") {
+            content = "[语音]";
+          } else if (item.value === "VIDEO") {
+            content = "[视频]";
+          } else {
+            content = "";
+          }
+        }
+      });
+      return content;
+    },
+    // 好友列表消息时间
+    msgTime(time) {
+      if (!time) {
+        return "";
+      }
+      let timeNow = new Date().getTime();
+      let parseTime = this.parseTime(time);
+      if (timeNow - time < 24 * 60 * 60 * 1000) {
+        return parseTime.substr(11, 5);
+      } else {
+        return parseTime.substr(0, 10);
+      }
+    },
+    // 年/月/日
+    sliceDate(time) {
+      if (!time) {
+        return "";
+      }
+      return this.parseTime(time).substr(0, 10) || "";
+    },
+    // 返回语音秒数
+    setAudioSec(content) {
+      let audio = content;
+      if (!audio.dur) {
+        return "";
+      }
+      return (parseInt(audio.dur / 1000) || 0) + '"';
+    },
+    // 返回语音长度
+    setAudioLength(content) {
+      let audio = content;
+      if (!audio.dur) {
+        return "0px";
+      }
+      let length = parseInt(audio.dur / 1000) || 0;
+      if (length <= 5) {
+        return "0px";
+      } else if (length >= 30) {
+        return "130px";
+      } else {
+        return length * 5 + "px";
+      }
+    },
+    // 音频播放
+    playAudio(item) {
+      let audio = this.$refs["audio" + item.id][0];
+
+      audio.addEventListener("ended", () => {
+        this.ended(item);
+      });
+      if (audio.paused) {
+        this.$set(item, "playStatus", true);
+        audio.play();
+      } else {
+        this.$set(item, "playStatus", false);
+        audio.pause();
+      }
+    },
+    // 播放完成事件
+    ended(item) {
+      this.$set(item, "playStatus", false);
+    },
+    // 导航跳转
+    navigateTo(name, id) {
+      this.$router.push({ name: name, params: { username: id } });
+    },
+    // 判断是否JSON字符串格式
+    isJSON(str) {
+      if (typeof str == "string") {
+        try {
+          var obj = JSON.parse(str);
+          if (typeof obj == "object" && obj) {
+            return true;
+          } else {
+            return false;
+          }
+        } catch (e) {
+          return false;
+        }
+      }
+    },
+  },
+};
+</script>
+<style lang='scss' scoped>
+@import "@/assets/styles/scss/chattingRecords.scss";
+</style>
+<style lang="scss">
+.hover-anchor-info-right {
+  font-size: 12px;
+  .el-form-item {
+    margin-bottom: 5px;
+  }
+  .el-form-item--medium .el-form-item__content {
+    line-height: 30px;
+    font-size: 12px;
+    text-align: right;
+  }
+  .el-form-item--medium .el-form-item__label {
+    line-height: 30px;
+    font-weight: normal;
+    font-size: 12px;
+  }
+}
+.image-slot {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  font-size: 32px;
+  justify-content: center;
+  align-items: center;
+  color: #909399;
+}
+</style>

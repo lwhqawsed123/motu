@@ -1,0 +1,886 @@
+<template>
+  <!-- 主播列表 -->
+  <div class="record">
+    <div class="record-conter">
+      <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
+        <el-col :span="24">
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <el-form-item label="订单日期：">
+              <dateTimePicker
+                v-if="formInline.date.startday"
+                :date="formInline.date"
+                @onSubmit="onSubmit"
+              ></dateTimePicker>
+            </el-form-item>
+            <el-form-item label="短ID：">
+              <el-input
+                v-model.trim="formInline.username"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入用户id"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="订单号：">
+              <el-input
+                v-model.trim="formInline.order_id"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入订单号"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="所有商品：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.product_id"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in productOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="支付状态：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.status"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in payStatusOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="支付方式：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.pay_mode"
+                placeholder="请选择"
+                style="width:100px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in payModeOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="性别：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.gender"
+                placeholder="请选择"
+                style="width:85px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in gengerOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="平台：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.platform"
+                placeholder="请选择"
+                style="width:85px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in platformOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="线上/测试：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.sandbox"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in sandboxOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="收款商户号：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.mchid"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in mchidOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="登陆包名：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.client_id"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in channelOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="登陆渠道号：">
+              <el-input
+                v-model.trim="formInline.channel"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入渠道号"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="注册包名：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.r_client_id"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in channelOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="注册渠道号：">
+              <el-input
+                v-model.trim="formInline.r_channel"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入渠道号"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="CPS渠道号：">
+              <el-input
+                v-model.trim="formInline.channel_cps"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入渠道号"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="金额：">
+              <el-input
+                v-model.trim="formInline.price1"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="最小(含)"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-input
+                v-model.trim="formInline.price2"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="最大(含)"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" icon="el-icon-search" @click="onSubmit" size="mini">查询</el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col>
+          <div class="chart-wrapper">
+            <order-chart v-if="orderChartFlag" :chartData="chartData" />
+          </div>
+        </el-col>
+      </el-row>
+      <my-table
+        :tableData="tableData"
+        :formInline="formInline"
+        :totalNum="totalNum"
+        :ext_stat="ext_stat"
+        :row-key="'id'"
+        @getOnlineList="getOnlineList"
+      >
+        <!-- <el-table
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        row-key="proprId"
+        show-summary
+        :summary-method="getSummaries"
+        @sort-change="sortChange"
+        >-->
+        <el-table-column type="index" min-width="45" label="编号"></el-table-column>
+        <el-table-column prop="id" min-width="110" label="订单号"></el-table-column>
+        <!-- 用户信息 -->
+        <el-table-column show-overflow-tooltip min-width="70px">
+          <template slot="header">
+            <span>头像</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <div class="anchor-info cursor" @click="openDetail(scope.row.userid)">
+              <div class="profile-box">
+                <img :src="scope.row.avatar" alt class="profile" />
+              </div>
+              <br v-if="scope.row.status==='3'||scope.row.status==='2'" />
+              <span style="color:#f56c6c" v-if="scope.row.status==='3'">禁言</span>
+              <span style="color:#f56c6c" v-else-if="scope.row.status==='2'">封号</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip min-width="120px" label="昵称/ID">
+          <template slot-scope="scope">
+            <span class="visitor-info-name" title="用户昵称">{{scope.row.nickname}}</span>
+            <br />
+            <span
+              class="gender-men"
+              :class="scope.row.gender==='1'?'':'gender-women'"
+            >{{scope.row.age}}</span>
+            <span
+              class="el-icon-video-camera-solid verify_status"
+              title="视频认证"
+              v-if="scope.row.verify_status==='1'"
+            ></span>
+            <span title="短ID">{{scope.row.username}}</span>
+            <br />
+            <span title="用户ID">{{scope.row.userid}}</span>
+          </template>
+        </el-table-column>
+        <!-- 用户信息结束 -->
+        <el-table-column min-width="170" label="商品名称">
+          <template slot="header">
+            <span>商品名称</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">{{scope.row.subject}}</template>
+        </el-table-column>
+        <el-table-column min-width="130" label="支付方式">
+          <template slot="header">
+            <span>支付方式</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <span>{{myFilter(scope.row.pay_mode,payModeOptions)}}</span>
+            <br />
+            <span>{{"支付账户需要接口"}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip prop="status" label="订单状态" min-width="120px">
+          <template slot-scope="scope">
+            <span>{{myFilter(scope.row.status,payStatusOptions)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="total_price" label="订单金额" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="product_type" label="商品/ID" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span>{{scope.row.product_type}}</span>
+            <br />
+            <span>{{scope.row.product_id}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip prop="registertime" label="平台/版本" min-width="130">
+          <template slot-scope="scope">
+            <!-- <span>{{parseTime(scope.row.registertime)}}</span>
+            <br />-->
+            <span>{{scope.row.platform}}</span>
+            <br />
+            <span>{{scope.row.version}}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column show-overflow-tooltip prop="lastlogintime" label="包名/渠道" min-width="130">
+          <template slot-scope="scope">
+            <span>{{scope.row.client_id}}</span>
+            <br />
+            <span>{{scope.row.channel}}</span>
+            <br />
+            <span>{{scope.row.channel_cps}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column sortable="custom" min-width="90" prop="created_at" label="订购时间"></el-table-column>
+        <el-table-column show-overflow-tooltip sortable="custom" prop="diff_days" label="距注册">
+          <template slot-scope="scope">{{scope.row.diff_days}}天</template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip label="操作" min-width="130px">
+          <template slot-scope="scope">
+            <el-button
+              icon="el-icon-view"
+              size="mini"
+              title="查看详情"
+              @click="openOrder(scope.row.id)"
+            ></el-button>
+            <el-button
+              type="warning"
+              size="mini"
+              title="退款"
+              plain
+              @click="openEdit('退款',scope.row.id)"
+              v-if="scope.row.status==='success'"
+            >
+              <span class="iconfont icon-tuikuan" style="font-size:12px"></span>
+            </el-button>
+          </template>
+        </el-table-column>
+        <!-- </el-table> -->
+      </my-table>
+
+      <!-- <my-pagination
+        v-show="totalNum>0"
+        :total="totalNum"
+        :page.sync="formInline.pageNum"
+        :limit.sync="formInline.pageSize"
+        :ext_stat="ext_stat"
+        @pagination="getOnlineList"
+      />-->
+    </div>
+    <!--  用户详情组件 -->
+    <detail v-if="userDetail.userid" :userDetail="userDetail"></detail>
+    <!-- 订单详情弹框 -->
+    <el-dialog id="order-dialog" title="查看详情" :visible.sync="orderDetail.orderDialog" width="600px">
+      <table class="table table-striped table-bordered table-hover view-userinfo">
+        <tbody>
+          <tr v-for="(item,index) in orderDetail.tableColumns" :key="index">
+            <td width="30%">{{orderDetail.columns[item]?orderDetail.columns[item].label:''}}</td>
+            <td width="70%">
+              <span
+                v-if="item==='pay_mode'"
+              >{{myFilter(orderDetail.orderForm[item],payModeOptions)}}</span>
+              <span
+                v-else-if="item==='gender'"
+              >{{myFilter(orderDetail.orderForm[item],gengerOptions)}}</span>
+              <span
+                v-else-if="item==='status'"
+              >{{myFilter(orderDetail.orderForm[item],payStatusOptions)}}</span>
+              <span v-else>{{orderDetail.orderForm[item]}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div slot="footer">
+        <el-button @click="orderDetail.orderDialog=false">取 消</el-button>
+      </div>
+    </el-dialog>
+    <!-- 退款弹框 -->
+    <el-dialog
+      @close="closeRulesFormDialog('ruleForm')"
+      id="ruleForm-dialog"
+      :title="ruleFormTitle"
+      :visible.sync="ruleFormDialog"
+      width="600px"
+    >
+      <div
+        style="margin-left :13px;margin-bottom:10px; color:#f56c6c"
+      >已退款金额：{{refundData.refund_money}}元，可退金额:{{refundData.price}}元</div>
+      <el-form
+        :rules="rules"
+        :model="ruleForm"
+        label-width="100px"
+        label-position="right"
+        ref="ruleForm"
+      >
+        <el-form-item label="退款金额" prop="refund_money">
+          <el-input v-model="ruleForm.refund_money" maxlength="20" show-word-limit></el-input>
+        </el-form-item>
+        <el-form-item label="退款时间" prop="operation_time">
+          <el-date-picker
+            v-model="ruleForm.operation_time"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            type="datetime"
+            placeholder="选择日期时间"
+          ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="是否限制充值" prop="pay_refused">
+          <el-checkbox v-model="ruleForm.pay_refused">不允许再充值</el-checkbox>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="closeRulesFormDialog('ruleForm')">取 消</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')">保 存</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { channel, get_user_by_id } from "@/api/central/users/list.js";
+import {
+  list,
+  get_by_id,
+  get_refund,
+  save_edit,
+  user_select,
+} from "@/api/central/order/list.js";
+import detail from "@/views/common_components/detail/detail.vue";
+import OrderChart from "@/views/dashboard/OrderChart.vue";
+import {
+  gengerOptions,
+  platformOptions,
+  statusOptions,
+  sandboxOptions,
+} from "@/utils/options/common.js";
+import { payModeOptions, payStatusOptions } from "@/utils/options/order.js";
+export default {
+  name: "users",
+  components: {
+    detail: detail,
+    OrderChart,
+  },
+  data() {
+    const validate = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("请输入退款金额"));
+      } else {
+        const reg = /^\d+(\.\d{0,2})?$/;
+        if (!reg.test(value)) {
+          callback(new Error("必须为数字类型,且小数点后最多保留2位"));
+        } else {
+          if (value * 100 > this.refundData.price * 100) {
+            callback(new Error("退款金额不能大于可退款金额!"));
+          } else {
+            callback();
+          }
+        }
+      }
+    };
+    return {
+      statusOptions: statusOptions,
+      platformOptions: platformOptions,
+      gengerOptions: gengerOptions,
+      payModeOptions,
+      payStatusOptions,
+      sandboxOptions,
+      // 总条数
+      totalNum: 0,
+      // 查询数据
+      formInline: {
+        date: {
+          startday: "",
+          endday: "",
+        }, // 日期
+        username: "",
+        order_id: "",
+        product_id: "",
+        status: "",
+        pay_mode: "",
+        gender: "",
+        platform: "",
+        sandbox: "0",
+        mchid: "",
+        client_id: "",
+        channel: "",
+        r_client_id: "",
+        r_channel: "",
+        channel_cps: "",
+        price1: "",
+        price2: "",
+        // 开始时间
+        startday: "",
+        //结束时间
+        endday: "",
+        // 当前显示条数
+        pageSize: 20,
+        // 当前显示页数
+        pageNum: 1,
+        offset: 0,
+      },
+      // 日期禁用项 禁用大于结束日期
+      startOptions: {
+        disabledDate: false,
+      },
+      // 日期禁用项 禁用小于开始日期
+      endOptions: {
+        disabledDate: false,
+      },
+      ext_stat: "",
+      // 表格数据
+      tableData: [],
+      // echarts图标参数
+      chartData: {},
+      orderChartFlag: false,
+      // 渠道包下拉框
+      channelOptions: [],
+      productOptions: [],
+      mchidOptions: [],
+      clientIdOptions: [],
+      r_client_idOptions: [],
+      // 订单详情
+      orderDetail: {
+        orderForm: {},
+        columns: {},
+        orderDialog: false,
+        tableColumns: [
+          "id",
+          "userid",
+          "nickname",
+          "avatar",
+          "gender",
+          "pay_mode",
+          "status",
+          "total_price",
+          "created_at",
+          "product_id",
+          "product_add_goldcoin",
+          "product_price",
+          "epay_trade_no",
+          "product_type",
+          "mchid",
+        ],
+      },
+      // ====用户详情弹框=====
+      userDetail: {
+        timestamp: "",
+        userid: "",
+      },
+      //====新增/修改=====
+      ruleFormDialog: false,
+      ruleFormTitle: "",
+      refundData: {},
+      // 添加表单数据
+      ruleForm: {
+        refund_id: "",
+        userid: "",
+        order_id: "",
+        pay_mode: "",
+        refund_money: "",
+        operation_time: "",
+        admin: "",
+        client_id: "",
+        channel: "",
+        udid: "",
+        dateline: "",
+      },
+      // 表单验证
+      rules: {
+        refund_money: [
+          { required: true, validator: validate, trigger: "blur" },
+        ],
+        operation_time: [
+          { required: true, message: "请选择退款时间", trigger: "change" },
+        ],
+      },
+    };
+  },
+  created() {
+    // 获取默认开始时间和结束时间
+    this.formInline.date.startday = this.getDateNow()[0];
+    this.formInline.date.endday = this.getDateNow()[1];
+    // 调用 获取列表 方法
+    this.getOnlineList();
+    // 获取渠道包下拉框列表
+    this.getChannelList();
+  },
+  watch: {
+    // ["formInline.beginTime"](val) {
+    //   this.endOptions = {
+    //     disabledDate(date) {
+    //       if (!val) {
+    //         return false;
+    //       } else if (
+    //         new Date(date).getTime() === new Date(val + " 00:00:00").getTime()
+    //       ) {
+    //         return false;
+    //       }
+    //       return date.getTime() < new Date(val).getTime();
+    //     }
+    //   };
+    // },
+    // ["formInline.endTime"](val) {
+    //   this.startOptions = {
+    //     disabledDate(date) {
+    //       if (!val) {
+    //         return false;
+    //       } else if (
+    //         new Date(date).getTime() === new Date(val + " 00:00:00").getTime()
+    //       ) {
+    //         return false;
+    //       }
+    //       return date.getTime() > new Date(val).getTime();
+    //     }
+    //   };
+    // }
+  },
+  methods: {
+    // 查看
+    see(row) {
+      const obj = {
+        id: row.id,
+        orderNo: row.orderNo,
+      };
+      this.$emit("changePage", "SEE", obj);
+    },
+    onSubmit() {
+      this.formInline.pageNum = 1;
+      this.getOnlineList();
+    },
+    // 获取列表
+    getOnlineList() {
+      let data = JSON.parse(JSON.stringify(this.formInline));
+      data.startday = data.date.startday;
+      data.endday = data.date.endday;
+      data.offset = (data.pageNum - 1) * data.pageSize;
+      delete data.date;
+      list(data).then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.tableData = xhrData.data.items;
+          this.ext_stat = xhrData.data.ext_stat;
+          this.totalNum = +xhrData.data.total_rows;
+          this.chartData = xhrData.data.histogram;
+          this.orderChartFlag = true;
+        }
+      });
+    },
+    // 获取渠道包列表
+    getChannelList() {
+      let data = {
+        platform: "",
+        version_proc_verifing: 0,
+        client_name: "",
+      };
+      user_select(data).then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.channelOptions = xhrData.data;
+        }
+      });
+    },
+    // 筛选渠道包
+    checkChannel(client_id) {
+      let channelOptions = this.channelOptions.filter((item) => {
+        return item.value === client_id;
+      });
+      if (channelOptions.length) {
+        return channelOptions[0].label;
+      } else {
+        return "";
+      }
+    },
+
+    // 打开查看详情
+    async openOrder(id) {
+      let res = await get_by_id(id);
+      if (res && res.code === 0) {
+        this.orderDetail.orderForm = res.data.item;
+        this.orderDetail.columns = res.data.columns;
+        this.orderDetail.orderDialog = true;
+      }
+    },
+    //  打开查看
+    openDetail(id) {
+      this.userDetail.timestamp = new Date().getTime();
+      this.userDetail.userid = id;
+    },
+
+    // 打开编辑弹框
+    async openEdit(title, id) {
+      this.ruleFormTitle = title;
+      if (title === "新增") {
+        this.ruleFormDialog = true;
+      } else if (title === "退款") {
+        let data = {
+          order_id: id,
+        };
+        let res = await get_refund(data);
+        if (res && res.code === 0) {
+          this.refundData = res.data;
+          this.ruleForm = res.data.item;
+          this.ruleFormDialog = true;
+        }
+      } else {
+        return false;
+      }
+    },
+    // 提交编辑
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let ruleForm = JSON.parse(JSON.stringify(this.ruleForm));
+          let data = {
+            refund_id: this.ruleForm.refund_id,
+            userid: this.ruleForm.userid,
+            order_id: this.ruleForm.order_id,
+            pay_mode: this.ruleForm.pay_mode,
+            refund_money: this.ruleForm.refund_money,
+            operation_time: this.ruleForm.operation_time,
+            pay_refused: this.ruleForm.pay_refused,
+            admin: this.ruleForm.admin,
+            client_id: this.ruleForm.client_id,
+            channel: this.ruleForm.channel,
+            udid: this.ruleForm.udid,
+            dateline: this.ruleForm.dateline,
+          };
+          console.log(data);
+          save_edit(data).then((res) => {
+            if (res && res.code === 0) {
+              this.$message.success({
+                message: res.info,
+              });
+              this.closeRulesFormDialog(formName);
+              this.getOnlineList();
+            }
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+    // 关闭修改弹框
+    closeRulesFormDialog(formName) {
+      this.$refs[formName].resetFields();
+      this.ruleFormDialog = false;
+    },
+    // 配置表格 总计
+    getSummaries(param) {
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = "合计";
+          return;
+        }
+        if (column.property === "total_price") {
+          const values = data.map((item) => Number(item["total_price"]));
+          let total = 0;
+          values.forEach((item) => {
+            total += item;
+          });
+          sums[index] = total + "元";
+        } else {
+          sums[index] = "";
+        }
+      });
+
+      return sums;
+    },
+  },
+};
+</script>
+<style>
+/* 修改对话框整体 */
+.el-dialog {
+  border-radius: 5px;
+}
+/* 修改对话框中间部分 */
+.el-dialog__body {
+  padding-bottom: 0;
+}
+/* 修改对话框头部 */
+.el-dialog__header {
+  background-color: #e6e8eb;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+/* 修改对话框底部 */
+.el-dialog__footer {
+  padding: 10px;
+  background-color: #e6e8eb;
+}
+/* 修改对话框标题 */
+.el-dialog__title {
+  font-size: 20px;
+  font-weight: bold;
+}
+</style>
+<style lang="scss" scoped>
+@import "@/assets/styles/scss/list.scss";
+@import "@/assets/styles/scss/table.scss";
+</style>
+<style lang="scss" scoped>
+.chart-wrapper {
+  background: #fff;
+  // padding: 8px 16px 0;
+  margin: 20px 10px;
+}
+@media (max-width: 1024px) {
+  .chart-wrapper {
+    padding: 8px;
+  }
+}
+</style>
+<style lang="scss">
+.record {
+  // .el-date-editor--datetimerange.el-input__inner {
+  //   width: 340px;
+  // }
+  .record-top {
+    .el-form-item__label {
+      padding: 0;
+    }
+  }
+}
+.users-detail {
+  .el-dialog__body {
+    padding-bottom: 30px;
+  }
+}
+</style>

@@ -1,0 +1,393 @@
+<template>
+  <div class="login-content">
+    <div class="login">
+      <div class="login-left hidden-sm-and-down">
+        <div class="login-left-title">
+          <h2 class="login-left-h1">{{title}}</h2>
+          <h2>后台管理系统</h2>
+        </div>
+      </div>
+      <el-form
+        id="loginForm"
+        ref="loginForm"
+        :model="loginForm"
+        :rules="loginRules"
+        class="login-form"
+      >
+        <!-- <h3 class="title">物保宝后台管理系统</h3> -->
+        <div class="logoTitle">
+          <!-- <img src="../assets/logo/logo2.png" width="105" height="25" alt /> -->
+          <h1 class="title">{{title}}</h1>
+          <span></span>
+          <h1 class="title">平台登录</h1>
+        </div>
+        <el-form-item style="margin-top:25px" prop="username" v-if="loginType">
+          <el-input
+            class="login-input"
+            v-model="loginForm.username"
+            type="text"
+            autocomplete="off"
+            placeholder="请输入账号"
+          >
+            <svg-icon
+              style="width:28px;height: 20px;margin-top: 10px;padding-right: 5px;border-right: 1px solid #c0c0c0;"
+              slot="prefix"
+              icon-class="wbb_zhang"
+              class="el-input__icon input-icon"
+            />
+          </el-input>
+        </el-form-item>
+         <el-form-item style="margin-top:25px" prop="mobile" v-if="!loginType">
+          <el-input
+            class="login-input"
+            v-model="loginForm.mobile"
+            type="text"
+            autocomplete="off"
+            placeholder="请输入手机号"
+          >
+            <svg-icon
+              style="width:28px;height: 20px;margin-top: 10px;padding-right: 5px;border-right: 1px solid #c0c0c0;"
+              slot="prefix"
+              icon-class="phone"
+              class="el-input__icon input-icon"
+            />
+          </el-input>
+        </el-form-item>
+        <!-- <el-input style="width: 0; height: 0; position: absolute; z-index: -1;" type="text"></el-input> -->
+        <!-- <el-input style="width: 0; height: 0; position: absolute; z-index: -1;" type="password"></el-input> -->
+        <!-- 手机号 -->
+
+        <!-- <el-input style="width: 0; height: 0; position: absolute; z-index: -1;" type="text"></el-input> -->
+        <!-- <el-input style="width: 1px; height: 1px;padding:0; position: absolute; z-index: -1;" type="password"></el-input> -->
+        <el-form-item prop="password" v-if="loginType">
+          <el-input
+            class="login-input"
+            v-model="loginForm.password"
+            type="password"
+            placeholder="请输入密码"
+            autocomplete="off"
+            @keyup.enter.native="handleLogin"
+          >
+            <svg-icon
+              style="width:28px;height: 20px;margin-top: 10px;padding-right: 5px;border-right: 1px solid #c0c0c0;"
+              slot="prefix"
+              icon-class="wbb_pas"
+              class="el-input__icon input-icon"
+            />
+          </el-input>
+        </el-form-item>
+        <!-- 验证码 -->
+        <el-form-item prop="code" v-if="!loginType">
+          <el-input
+            class="login-input"
+            v-model="loginForm.code"
+            type="text"
+            autocomplete="off"
+            placeholder="验证码"
+            @keyup.enter.native="handleLogin"
+          >
+            <svg-icon
+              style="width:28px;height: 20px;margin-top: 10px;padding-right: 5px;border-right: 1px solid #c0c0c0;"
+              slot="prefix"
+              icon-class="validCode"
+              class="el-input__icon input-icon"
+            />
+            <i
+              slot="suffix"
+              class="get-code-button"
+              :class="time!==0?'disabled-class':''"
+              @click="getMessageCode('loginForm')"
+            >
+              <span>获取手机验证码</span>
+              <span v-if="time">{{time}}s</span>
+            </i>
+          </el-input>
+        </el-form-item>
+        <!-- <div style="padding:0 30px;margin-bottom:5px" v-if="!loginType">
+          <el-button
+            type="success"
+            :disabled="time!==0"
+            @click.native.prevent="getMessageCode('loginForm')"
+          >
+            <span>获取手机验证码</span>
+            <span v-if="time">{{time}}s</span>
+          </el-button>
+        </div>-->
+        <!-- <el-form-item class="login-input" prop="code">
+        <el-input
+          v-model="loginForm.code"
+          
+          placeholder="请输入验证码"
+          style="width: 63%"
+          @keyup.enter.native="handleLogin"
+        >
+          <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
+        </el-input>
+        <div class="login-code">
+          <img :src="codeUrl" @click="getCode" />
+        </div>
+        </el-form-item>-->
+        <!-- <div
+          style=" display: flex;justify-content: space-between;padding: 0 30px;box-sizing: border-box;height:30px"
+        >
+          <el-checkbox
+            v-model="loginForm.rememberMe"
+            style="margin:0px 0px 25px 0px;color:#c1c1c1;font-size:12px"
+          >记住登陆状态</el-checkbox>
+          <div style="font-size:14px;cursor: pointer;" @click="toRegister">立即注册</div>
+          <div
+            style="color:#c1c1c1;font-size:12px;line-height: 19px;cursor: pointer;"
+            @click="forget"
+          >忘记密码?</div>
+        </div> -->
+
+        <el-form-item style="width:100%;margin-bottom:0;">
+          <el-button
+            :loading="loading"
+            size="medium"
+            type="primary"
+            style="width:100%;"
+            id="loginBtn"
+            @click.native.prevent="handleLogin"
+          >
+            <span v-if="!loading">立 即 登 陆</span>
+            <span v-else>登 录 中...</span>
+          </el-button>
+        </el-form-item>
+        <p class="login-p">
+          <span @click="changeType" v-if="!loginType">账户密码登陆</span>
+          <span @click="changeType" v-if="loginType">手机号登陆</span>
+
+          <!-- 还没有账号? -->
+          <!-- <a href="javascript:;" @click="toRegister">立即注册</a> -->
+        </p>
+      </el-form>
+      <!--  底部  -->
+      <!-- <div class="el-login-footer">
+      <span>Copyright © 2018-2019 ruoyi.vip All Rights Reserved.</span>
+      </div>-->
+    </div>
+  </div>
+</template>
+
+<script>
+import Cookies from "js-cookie";
+import { encrypt, decrypt } from "@/utils/jsencrypt";
+import { get_verifycode } from "@/api/login";
+import { loginTitle } from "@/settings.js";
+import { mapState } from "vuex";
+
+export default {
+  name: "Login",
+  data() {
+    return {
+      codeUrl: "",
+      cookiePassword: "",
+      loginType: false,
+      time: 0,
+      interval: "",
+      title: loginTitle,
+      loginForm: {
+        username: "",
+        password: "",
+        rememberMe: false,
+        mobile: "",
+        code: "",
+        uuid: "",
+      },
+      loginRules: {
+        username: [
+          { required: true, trigger: "blur", message: "用户名不能为空" },
+        ],
+        password: [
+          { required: true, trigger: "blur", message: "密码不能为空" },
+        ],
+        // 电话
+        mobile: [
+          { required: true, message: "请输入手机号", trigger: "blur" },
+          {
+            // pattern: /^0{0,1}(13[0-9]|15[7-9]|153|156|18[7-9])[0-9]{8}$/,
+            pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
+            message: "手机号格式不对",
+            trigger: "blur",
+          },
+        ],
+        // 验证码
+        code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
+        // code: [{ required: true, trigger: "change", message: "验证码不能为空" }]
+      },
+      loading: false,
+      redirect: undefined,
+    };
+  },
+  watch: {
+    $route: {
+      handler: function (route) {
+        this.redirect = route.query && route.query.redirect;
+        // 获取登陆方式(账户密码/手机登陆)
+        this.loginType = this.getLoginType();
+      },
+      immediate: true,
+    },
+  },
+  created() {
+    // this.getCookie();
+    this.loginType = this.getLoginType();
+  },
+  methods: {
+    // 获取登陆方式
+    getLoginType() {
+      let loginType = localStorage.getItem("LOGINTYPE");
+      if (loginType === "true") {
+        return true;
+      } else if (loginType === "false") {
+        return false;
+      } else {
+        return false;
+      }
+    },
+    getCookie() {
+      const username = Cookies.get("username");
+      const password = Cookies.get("password");
+      const rememberMe = Cookies.get("rememberMe");
+      this.loginForm = {
+        username: username === undefined ? this.loginForm.username : username,
+        password:
+          password === undefined ? this.loginForm.password : decrypt(password), // 对密码进行解密
+        rememberMe: rememberMe === undefined ? false : Boolean(rememberMe),
+      };
+    },
+    getMessageCode(formName) {
+      if (this.time) {
+        return false;
+      }
+      this.$refs[formName].validateField("mobile", (res) => {
+        if (!res) {
+          let data = {
+            mobile: this.loginForm.mobile,
+          };
+          get_verifycode(data).then((res) => {
+            if (res.code === 0) {
+              this.$message.success(res.info);
+              this.time = 30;
+              this.interval = setInterval(() => {
+                if (this.time > 0) {
+                  this.time--;
+                } else {
+                  clearInterval(this.interval);
+                }
+              }, 1000);
+            }
+          });
+        }
+      });
+    },
+    handleLogin() {
+      // this.loginForm.username = Base64.encode(this.loginForm.username)
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          this.loading = true;
+          // ===记住登陆====
+          // if (this.loginForm.rememberMe) {
+          //   Cookies.set("username", this.loginForm.username, { expires: 30 });
+          //   // 对密码进行加密
+          //   Cookies.set("password", encrypt(this.loginForm.password), {
+          //     expires: 30
+          //   });
+          //   Cookies.set("rememberMe", this.loginForm.rememberMe, {
+          //     expires: 30
+          //   });
+          // } else {
+          //   Cookies.remove("username");
+          //   Cookies.remove("password");
+          //   Cookies.remove("rememberMe");
+          // }
+          // =======
+          let loginForm = {};
+          if (this.loginType) {
+            // loginForm.password = Base64.encode(this.loginForm.password)
+            // loginForm.password = encrypt(this.loginForm.password)
+            loginForm.password = this.loginForm.password;
+            // loginForm.rememberMe = this.loginForm.rememberMe;
+            loginForm.username = this.loginForm.username;
+            // loginForm.code = this.loginForm.code;
+            // loginForm.uuid = this.loginForm.uuid;
+            // console.log(loginForm.password,'加密后');
+
+            // console.log(decrypt(loginForm.password),'解密');
+          } else {
+            loginForm.mobile = this.loginForm.mobile;
+            loginForm.code = this.loginForm.code;
+          }
+          loginForm.loginType = this.loginType;
+          this.$store
+            .dispatch("Login", loginForm)
+            .then((res) => {
+              this.loading = false;
+              if (res.code == 0) {
+                this.$message.success(res.info);
+                // this.$router.push({ path: this.redirect || "/" });
+                this.$router.push({
+                  path: res.data.homepage || "/user/person",
+                });
+              }
+            })
+            .catch(() => {
+              this.loading = false;
+            });
+        }
+      });
+    },
+    changeType() {
+      let loginForm = JSON.parse(JSON.stringify(this.loginForm));
+      this.loginType = !this.loginType;
+      this.$refs["loginForm"].resetFields();
+      this.loginForm = loginForm;
+    },
+    // 跳转到注册页面
+    toRegister() {
+      this.$router.push("/register");
+      // this.$router.push("/moveRegister");
+    },
+    // 跳转到忘记密码页面
+    forget() {
+      this.$router.push("/forget");
+    },
+    // 输入框聚焦时
+    onFocus(e) {
+      e.target.type = "password";
+      console.log(e.target.type);
+    },
+  },
+};
+</script>
+<style lang='scss'>
+@import "@/assets/styles/scss/login.scss";
+</style>
+<style lang="scss" scoped>
+@media screen and (max-width: 414px) {
+  #loginForm {
+    margin: 0 5px;
+    width: 100%;
+  }
+  .login {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  #loginForm {
+    padding: 20px 20px;
+  }
+}
+@media screen and (max-width: 320px) {
+  #loginForm {
+    padding: 20px 5px;
+    .el-form-item--medium {
+      .el-form-item__content {
+        padding: 0 10px;
+      }
+    }
+  }
+}
+</style>

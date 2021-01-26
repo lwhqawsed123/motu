@@ -1,0 +1,85 @@
+<template>
+  <div>
+    <my-pagination
+      :total="totalNum"
+      :page.sync="formInline.pageNum"
+      :limit.sync="formInline.pageSize"
+      @pagination="pagination"
+      :date="formInline.date"
+      :onTop="true"
+    />
+    <el-table
+      :data="tableData"
+      tooltip-effect="dark"
+      style="width: 100%"
+      :row-key="row_key"
+      @sort-change="sortChange"
+      @selection-change="handleSelectionChange"
+    >
+      <slot></slot>
+    </el-table>
+    <my-pagination
+      :total="totalNum"
+      :page.sync="formInline.pageNum"
+      :limit.sync="formInline.pageSize"
+      :ext_stat="ext_stat"
+      @pagination="pagination"
+      :date="formInline.date"
+    />
+  </div>
+</template>
+
+<script>
+export default {
+  name: "",
+  props: {
+    formInline: {
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
+    ext_stat: {
+      // 插槽
+      type: String,
+      default: null,
+    },
+    row_key:{
+        // 插槽
+      type: String,
+      default: 'id',
+    },
+    totalNum: {
+      required: true,
+      type: Number,
+    },
+    tableData: {
+      type: Array,
+      default: function () {
+        return [];
+      },
+    },
+    getOnlineList: {
+      type: Function,
+      default: function () {},
+    },
+  },
+  data() {
+    return {};
+  },
+
+  methods: {
+    pagination() {
+      this.$emit("getOnlineList");
+    },
+    sortChange() {
+      this.$emit("sortChange");
+    },
+    handleSelectionChange() {
+      this.$emit("handleSelectionChange");
+    },
+  },
+};
+</script>
+<style lang='' scoped>
+</style>

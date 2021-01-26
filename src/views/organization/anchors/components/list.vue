@@ -1,0 +1,531 @@
+<template>
+  <!-- 主播列表 -->
+  <div class="record">
+    <div class="record-conter">
+      <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
+        <el-col :span="24">
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <!-- <el-form-item label="注册日期：">
+              <dateTimePicker
+                v-if="formInline.date.startday"
+                :date="formInline.date"
+                @onSubmit="onSubmit"
+              ></dateTimePicker>
+            </el-form-item>
+            <el-form-item label="公会：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.groupid"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in groupOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>-->
+            <!-- <el-form-item label="用户状态：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.status"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in liveingStateOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>-->
+            <!-- <el-form-item label="审核状态：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.gstatus"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in gstatusOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>-->
+            <el-form-item label="公会：">
+              <group-select :formInline="formInline" @onSubmit="onSubmit"></group-select>
+            </el-form-item>
+            <el-form-item label="性别：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.gender"
+                placeholder="请选择"
+                style="width:85px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in gengerOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="设备：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.platform"
+                placeholder="请选择"
+                style="width:100px"
+                size="mini"
+              >
+                <el-option
+                  v-for="(item,index) in platformOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="手机：">
+              <el-input
+                v-model.trim="formInline.mobile"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入"
+                clearable
+                size="mini"
+                maxlength="20"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="昵称：">
+              <el-input
+                v-model.trim="formInline.nickname"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入昵称关键字"
+                style="width:145px"
+                clearable
+                size="mini"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="用户ID：">
+              <el-input
+                v-model.trim="formInline.userid"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入用户id"
+                clearable
+                size="mini"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="短ID：">
+              <el-input
+                v-model.trim="formInline.username"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入短id"
+                clearable
+                size="mini"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="渠道号：">
+              <el-input
+                v-model.trim="formInline.channel"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入渠道号"
+                clearable
+                size="mini"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" icon="el-icon-search" @click="onSubmit" size="mini">查询</el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <my-table
+        :tableData="tableData"
+        :formInline="formInline"
+        :totalNum="totalNum"
+        :ext_stat="ext_stat"
+        :row-key="'id'"
+        @getOnlineList="getOnlineList"
+        :stripe="true"
+      >
+        <!-- <el-table
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        row-key="proprId"
+        @sort-change="sortChange"
+        stripe
+        >-->
+        <el-table-column type="index" min-width="30px" label="编号"></el-table-column>
+        <el-table-column prop="group_name" label="公会"  min-width="50px"></el-table-column>
+        <!-- 用户信息 -->
+        <el-table-column label="头像" min-width="60px">
+          <template slot-scope="scope">
+            <div class="anchor-info cursor" @click="openDetail(scope.row.userid)">
+              <div class="profile-box">
+                <img :src="scope.row.avatar" class="profile" />
+              </div>
+              <br v-if="scope.row.status==='3'||scope.row.status==='2'" />
+              <span style="color:#f56c6c" v-if="scope.row.status==='3'">禁言</span>
+              <span style="color:#f56c6c" v-else-if="scope.row.status==='2'">封号</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip min-width="100px" label="昵称/ID">
+          <template slot-scope="scope">
+            <span class="visitor-info-name" title="用户昵称">{{scope.row.nickname}}</span>
+            <br />
+            <span
+              class="gender-men"
+              :class="scope.row.gender==='1'?'':'gender-women'"
+            >{{scope.row.age}}</span>
+            <span
+              class="el-icon-video-camera-solid verify_status"
+              title="视频认证"
+              v-if="scope.row.verify_status==='1'"
+            ></span>
+            <span title="短ID">{{scope.row.username}}</span>
+            <br />
+            <span title="用户ID">{{scope.row.userid}}</span>
+          </template>
+        </el-table-column>
+        <!-- 用户信息结束 -->
+        <el-table-column show-overflow-tooltip prop="memo" label="备注" min-width="50px"></el-table-column>
+        <!-- 主播星级 -->
+        <el-table-column label="星级" min-width="80px">
+          <template slot-scope="scope">
+            <!-- <el-tag v-if="scope.row.nice">
+              {{myFilter(scope.row.nice,starOptions)}}
+            </el-tag>
+            <span v-else>-</span>-->
+            <!-- 设置星级 -->
+            <el-dropdown
+              trigger="click"
+              v-if="title==='主播公会管理系统'"
+              @command="command=>{handleCommand(command,scope.row.userid)}"
+            >
+              <el-tag class="cursor">
+                {{myFilter(scope.row.nice,starOptions)}}
+                <span
+                  class="el-icon-arrow-down"
+                ></span>
+              </el-tag>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item
+                  v-for="(item,index) in starOptions"
+                  :key="index"
+                  :command="item.value"
+                >{{item.label}}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+            <el-tag v-else>{{ myFilter(scope.row.nice,starOptions)}}</el-tag>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column prop="platform" label="平台" min-width="80px" show-overflow-tooltip></el-table-column> -->
+        <el-table-column
+          sortable="custom"
+          min-width="65px"
+          prop="registertime"
+          label="注册时间"
+        >
+          <template slot-scope="scope">{{parseTime(scope.row.registertime)}}</template>
+        </el-table-column>
+
+        <el-table-column
+          sortable="custom"
+          min-width="65px"
+          prop="lastlogintime"
+          label="最近登陆"
+        >
+          <template slot-scope="scope">{{parseTime(scope.row.lastlogintime)}}</template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip sortable="custom" prop="jifen_now" label="当前收益" min-width="50px">
+          <!-- <template slot="header">
+            <span>当前收益</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template> -->
+        </el-table-column>
+        <el-table-column
+          show-overflow-tooltip
+          sortable="custom"
+          prop="jifen_all"
+          label="历史收益"
+          min-width="50px"
+        >
+          <!-- <template slot="header">
+            <span>历史收益</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template> -->
+        </el-table-column>
+        <!-- <el-table-column label="通话记录">
+          <template slot="header">
+            <span>通话记录</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <a
+              href="javascript:;"
+              style="margin-right:3px; color: rgb(24, 144, 255);"
+              @click="toCallRecords(scope.row)"
+            >查看</a>
+          </template>
+        </el-table-column>-->
+        <el-table-column label="审核状态" min-width="50px">
+          <template slot-scope="scope">
+            <span v-if="scope.row.group_status ==='2'" style="color:#66b1ff">待审核</span>
+            <span v-else-if="scope.row.group_status ==='0'" style="color:#f56c6c">未通过</span>
+            <span v-else-if="scope.row.group_status ==='1'" style="color:#67c23a">已通过</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="聊天记录" min-width="50px">
+          <!-- <template slot="header">
+            <span>聊天记录</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template> -->
+          <template slot-scope="scope">
+            <el-button
+              icon="el-icon-chat-line-round"
+              size="mini"
+              title="聊天记录"
+              @click="openChattingRecords(scope.row)"
+              style="margin-bottom:5px"
+            ></el-button>
+          </template>
+        </el-table-column>
+        <!-- </el-table> -->
+      </my-table>
+      <!-- <my-pagination
+        v-show="totalNum>0"
+        :total="totalNum"
+        :page.sync="formInline.pageNum"
+        :limit.sync="formInline.pageSize"
+        :ext_stat="ext_stat"
+        @pagination="getOnlineList"
+      />-->
+    </div>
+    <!-- 用户详情组件 -->
+    <el-detail v-if="userDetail.userid" :userDetail="userDetail"></el-detail>
+
+    <!-- 聊天记录弹框 -->
+    <chattingRecords v-if="chattingData.userid" :chattingData="chattingData"></chattingRecords>
+  </div>
+</template>
+
+<script>
+import {
+  gengerOptions,
+  platformOptions,
+  liveingStateOptions,
+  gstatusOptions,
+} from "@/utils/options/common.js";
+import { groupsOptions } from "@/api/organization/anchorsAudit/list.js";
+import { list, update_nice } from "@/api/organization/anchors/list.js";
+// import chattingRecords from "./chattingRecords.vue";
+import chattingRecords from "@/views/common_components/chattingRecords/chattingRecords.vue";
+import { starOptions } from "@/utils/options/videoVerify.js";
+import { title } from "@/settings.js";
+// import mymember from "./mymember.vue";
+// import xhrData from "./muck.json";
+export default {
+  components: {
+    chattingRecords: chattingRecords,
+  },
+  data() {
+    return {
+      title:title,
+      gengerOptions, // 性别
+      platformOptions, // 设备
+      liveingStateOptions, // 直播状态
+      gstatusOptions, // 审核状态
+      starOptions, // 主播星级
+      // 总条数
+      totalNum: 0,
+      ext_stat: "",
+      groupid: "",
+      // 查询数据
+      formInline: {
+        // date: {
+        //   startday: "",
+        //   endday: ""
+        // }, // 日期
+        groupid: "", // 公会ID
+        status: "", // 用户状态
+        mobile: "", // 手机号
+        platform: "", // 设备
+        nickname: "", // 昵称
+        userid: "", // 用户id
+        gender: "", // 性别
+        username: "", // 短ID
+        channel: "", // 渠道号
+        gstatus: "1", // 审核状态
+
+        // // 排序列
+        orderByColumn: "id",
+        // // 排序方式
+        isAsc: "desc",
+        // 开始时间
+        startday: "",
+        //结束时间
+        endday: "",
+        // 当前显示条数
+        pageSize: 20,
+        // 当前显示页数
+        pageNum: 1,
+        offset: 0,
+      },
+      // 表格数据
+      tableData: [],
+      // 渠道包下拉框
+      channelOptions: [],
+      // ====用户详情弹框=====
+      userDetail: {
+        timestamp: "",
+        userid: "",
+      },
+      // ====聊天记录=====
+      chattingData: {
+        timestamp: "",
+        userid: "",
+      },
+      chattingUserId: "",
+    };
+  },
+  created() {
+    // 获取默认开始时间和结束时间
+    // this.formInline.date.startday = this.getDateNow()[0];
+    // this.formInline.date.endday = this.getDateNow()[1];
+    // 调用 获取在线委托列表 方法
+    this.getOnlineList();
+  },
+  methods: {
+    // 查看
+    toCallRecords(row) {
+      this.$router.push({
+        name: "union/callRecords",
+        params: { username: row.username, groupid: row.group_id },
+      });
+    },
+    onSubmit() {
+      this.formInline.pageNum=1
+      this.getOnlineList();
+    },
+    // 获取列表
+    getOnlineList() {
+      let data = JSON.parse(JSON.stringify(this.formInline));
+      // data.startday = data.date.startday;
+      // data.endday = data.date.endday;
+      data.offset = (data.pageNum - 1) * data.pageSize;
+      // delete data.date;
+      list(data).then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.tableData = xhrData.data.items;
+          this.ext_stat = xhrData.data.ext_stat;
+          this.groupid = xhrData.data.groupid;
+          this.totalNum = +xhrData.data.total_rows;
+        }
+      });
+    },
+    // 获取公会下拉列表
+    getGroupsOptions() {
+      groupsOptions().then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.groupOptions = xhrData.data;
+        }
+      });
+    },
+    //  打开查看用户信息
+    openDetail(id) {
+      this.userDetail.timestamp = new Date().getTime();
+      this.userDetail.userid = id;
+    },
+    // 打开聊天记录弹框
+    openChattingRecords(row) {
+      this.chattingData.timestamp = new Date().getTime();
+      this.chattingData.userid = row.userid;
+      this.chattingData.username = row.username;
+      this.chattingData.groupid = row.group_id;
+    },
+    // 子组件关闭窗口
+    closeDialog(params) {
+      this.chattingRecordsDialog = params;
+    },
+    // 设置当前主播的星级
+    handleCommand(command, userid) {
+      let data = {
+        userid: userid,
+        nice: command,
+      };
+      if (command === "") {
+        data.nice = "-1";
+      }
+      update_nice(data).then((res) => {
+        if (res.code === 0) {
+          this.$message.success(res.info);
+          this.getOnlineList();
+        }
+      });
+    },
+  },
+};
+</script>
+<style>
+</style>
+<style lang="scss" scoped>
+@import "@/assets/styles/scss/list.scss";
+</style>
+<style lang="scss">
+.chattingRecords .el-dialog__header {
+  display: none !important;
+}
+.chattingRecords .el-dialog__body {
+  padding: 2px;
+  box-sizing: border-box;
+}
+.record {
+  // .el-date-editor--datetimerange.el-input__inner {
+  //   width: 340px;
+  // }
+  .record-top {
+    .el-form-item__label {
+      padding: 0;
+    }
+  }
+}
+// .el-input--mini .el-input__inner {
+//   height: 100%;
+//   line-height: unset;
+//   // padding-top: 8px;
+//   // padding-bottom: 8px;
+// }
+</style>

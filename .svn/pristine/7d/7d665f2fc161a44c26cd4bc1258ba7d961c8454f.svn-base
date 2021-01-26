@@ -1,0 +1,299 @@
+<template>
+  <!-- 主播列表 -->
+  <div class="record">
+    <div class="record-conter">
+      <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
+        <el-col :span="24">
+          <el-form :inline="true" :model="formInline" class="demo-form-inline">
+            <el-form-item label="日期：">
+              <dateTimePicker
+                v-if="formInline.date.startday"
+                :date="formInline.date"
+                @onSubmit="onSubmit"
+              ></dateTimePicker>
+            </el-form-item>
+            <el-form-item label="公会：">
+              <el-select
+                @change="onSubmit"
+                clearable
+                v-model="formInline.groupid"
+                placeholder="请选择"
+                size="mini"
+                style="width:85px"
+              >
+                <el-option
+                  v-for="(item,index) in groupOptions"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <!-- <el-form-item label="短ID：">
+              <el-input
+                v-model.trim="formInline.username"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入短ID"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item> -->
+
+            <el-form-item label="短ID：">
+              <el-input
+                v-model.trim="formInline.username"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入短ID"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="用户ID：">
+              <el-input
+                v-model.trim="formInline.userid"
+                @keyup.enter.native="onSubmit"
+                @clear="onSubmit"
+                placeholder="请输入用户ID"
+                clearable
+                size="mini"
+                maxlength="200"
+              ></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" icon="el-icon-search" @click="onSubmit" size="mini">查询</el-button>
+            </el-form-item>
+            <el-form-item>
+              <el-button
+                type="success"
+                icon="el-icon-download"
+                @click="toExportExcel"
+                size="mini"
+              >导出EXCEL</el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
+      <!-- <forminline
+        :formList="formList"
+        :formInline="formInline"
+        :handlePrev="handlePrev"
+        :onSubmit="onSubmit"
+      ></forminline>-->
+      <my-table
+        :tableData="tableData"
+        :formInline="formInline"
+        :totalNum="totalNum"
+        :ext_stat="ext_stat"
+        @getOnlineList="getOnlineList"
+      >
+        <el-table-column type="index" min-width="45" label="编号"></el-table-column>
+        <el-table-column show-overflow-tooltip width="70px">
+          <template slot="header">
+            <span>头像</span>
+            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+              <i class="el-icon-question icon-color"></i>
+            </el-tooltip>
+          </template>
+          <template slot-scope="scope">
+            <div class="anchor-info cursor" @click="openDetail(scope.row.userid)">
+              <div class="profile-box">
+                <img :src="scope.row.avatar" alt class="profile" />
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column show-overflow-tooltip min-width="120px" label="昵称/ID">
+          <template slot-scope="scope">
+            <span class="visitor-info-name" title="用户昵称">{{scope.row.nickname}}</span>
+            <br />
+            <span
+              class="gender-men"
+              :class="scope.row.gender==='1'?'':'gender-women'"
+            >{{scope.row.age}}</span>
+            <span title="短ID">{{scope.row.username}}</span>
+            <br />
+            <span title="用户ID">{{scope.row.userid}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="jifen" min-width="110" label="积分"></el-table-column>
+        <el-table-column prop="money" min-width="80" label="金额"></el-table-column>
+        <el-table-column min-width="120" label="结算时间">
+          <template slot-scope="scope">{{parseTime(scope.row.dateline)}}</template>
+        </el-table-column>
+        <el-table-column prop="group_name" min-width="120" label="公会"></el-table-column>
+      </my-table>
+    </div>
+    <!-- 用户详情组件 -->
+    <el-detail v-if="userDetail.userid" :userDetail="userDetail"></el-detail>
+  </div>
+</template>
+
+<script>
+import { list, export_excel } from "@/api/organization/anchorsBill/list.js";
+import forminline from "@/views/common_components/forminline";
+import { groupsOptions } from "@/api/organization/anchorsAudit/list.js";
+export default {
+  name: "users",
+  components: {
+    forminline,
+  },
+  data() {
+    return {
+      // 总条数
+      totalNum: 0,
+      ext_stat: "",
+      formList: {
+        fromItem: [
+          {
+            type: "dateTimePicker",
+            value: "date",
+            label: "日期",
+          },
+          {
+            type: "input",
+            value: "username",
+            label: "短ID",
+          },
+          {
+            type: "input",
+            value: "userid",
+            label: "用户ID",
+          },
+        ],
+        buttons: [
+          {
+            type: "primary",
+          },
+          {
+            type: "success",
+            value: "前一天",
+            icon: "el-icon-d-arrow-left",
+            iconRight: "el-icon-d-arrow-right",
+            event: "handlePrev",
+          },
+        ],
+      },
+      // 查询数据
+      formInline: {
+        groupid: "",
+        date: {
+          startday: "",
+          endday: "",
+        }, // 日期
+        username: "",
+        userid: "",
+        // 开始时间
+        startday: "",
+        //结束时间
+        endday: "",
+        // 当前显示条数
+        pageSize: 20,
+        // 当前显示页数
+        pageNum: 1,
+        offset: 0,
+      },
+
+      // 表格数据
+      tableData: [],
+      orderDetail: {
+        orderForm: {},
+        columns: {},
+        orderDialog: false,
+        tableColumns: [
+          "id",
+          "userid",
+          "credittype",
+          "operation",
+          "number",
+          "count",
+          "description",
+          "ipaddr",
+          "operator",
+          "dateline",
+        ],
+      },
+      // ====用户详情弹框=====
+      userDetail: {
+        timestamp: "",
+        userid: "",
+      },
+      groupOptions: [],
+    };
+  },
+  created() {
+    // 获取默认开始时间和结束时间
+    this.formInline.date.startday = this.getDateNow()[0];
+    this.formInline.date.endday = this.getDateNow()[1];
+    // 调用 获取列表 方法
+    this.getOnlineList();
+    // 获取下拉列表
+    this.getGroupsOptions();
+  },
+  methods: {
+    onSubmit() {
+      this.getOnlineList();
+    },
+    // 获取列表
+    getOnlineList() {
+      let data = JSON.parse(JSON.stringify(this.formInline));
+      data.startday = data.date.startday;
+      data.endday = data.date.endday;
+      data.offset = (data.pageNum - 1) * data.pageSize;
+      delete data.date;
+      list(data).then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.tableData = xhrData.data.items;
+          this.ext_stat = xhrData.data.ext_stat;
+          this.totalNum = +xhrData.data.total_rows;
+        }
+      });
+    },
+    //  打开查看用户信息
+    openDetail(id) {
+      this.userDetail.timestamp = new Date().getTime();
+      this.userDetail.userid = id;
+    },
+    handlePrev(value) {
+      // 设置前一天/后一天
+      this.prevDate(this.formInline.date, value);
+      this.getOnlineList();
+    },
+    // 打开导出excel弹框
+    toExportExcel() {
+      this.$confirm("是否确认导出所有数据项?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          let data = JSON.parse(JSON.stringify(this.formInline));
+          data.startday = data.date.startday;
+          data.endday = data.date.endday;
+          data.offset = (data.pageNum - 1) * data.pageSize;
+          delete data.date;
+          return export_excel(data);
+        })
+        .then((response) => {
+          this.downloadBlob(response.data, response.fileName);
+        })
+        .catch(function () {});
+    },
+    // 获取公会下拉列表
+    getGroupsOptions() {
+      groupsOptions().then((xhrData) => {
+        if (xhrData.code === 0) {
+          this.groupOptions = xhrData.data;
+        }
+      });
+    },
+  },
+};
+</script>
+<style lang="scss" scoped>
+@import "@/assets/styles/scss/list.scss";
+@import "@/assets/styles/scss/table.scss";
+</style>

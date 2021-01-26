@@ -1,0 +1,24 @@
+.unions-detail{
+    font-size: 12px;
+    padding:10px;
+    display: flex;
+    width: 100%;
+    .unions-user-detail-box{
+        display: flex;
+
+        .unions-user-avatar{
+            width: 80px;
+            height: 80px;
+    
+        }
+        .unions-user-detail{
+            margin-left: 30px;
+            line-height: 24px;
+        }
+    }
+    .unions-detail-right{
+        margin-left: 30px;
+        flex: 1;
+        
+    }
+}
