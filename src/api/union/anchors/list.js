@@ -26,6 +26,15 @@ export function get_anchor_by_id(data) {
   })
 }
 
+// 根据手机号或用户ID查询用户信息
+export function get_user_by_phone_or_id(data) {
+  return request({
+    url: `/live/group_details/get_user`,
+    method: 'GET',
+    params:data
+  })
+}
+
 
 // 渠道包下拉框
 export function channel(data) {
@@ -102,5 +111,26 @@ export function updatemymember_nice(data) {
       url: `/live/group_details/updatemymember_nice`,
       method: 'get',
       params: data
+  })
+}
+
+// 获取家族金币池余额
+export function get_group_gold_pool(data) {
+  return request({
+    url: `/live/group_details/group_gold_pool`,
+    method: 'GET',
+    params: data
+  })
+}
+
+// 修改主播金币
+export function update_gold_pool_reduce(data) {
+  return request({
+      url: `/live/group_details/gold_pool_reduce`,
+      method: 'POST',
+      headers: {
+          'content-type': 'application/x-www-form-urlencoded'
+      },
+      data: Qs.stringify(data)
   })
 }

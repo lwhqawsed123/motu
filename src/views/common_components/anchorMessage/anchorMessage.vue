@@ -32,11 +32,14 @@
           <div
             class="link-button to-diamonds cursor"
             @click="navigateTo('union/diamonds',anchorDetail.username)"
-          >积分流水</div>
+          >贝壳流水</div>
         </div>
         <div class="anchor-info-detail-buttons-first buttons-second">
           <div class="link-button to-call-records cursor" @click="openBanned('封号')">封号</div>
           <div class="link-button to-diamonds cursor" @click="unFreezeUser(anchorDetail.userid)">解封</div>
+        </div>
+        <div class="anchor-info-detail-buttons-first buttons-second" v-if="golds">
+          <div class="link-button to-call-records cursor" @click="editGlods('封号')">+ 金币</div>
         </div>
       </div>
     </div>
@@ -51,7 +54,7 @@
         <el-form-item label="魅力值" prop="charm">
           <span class="form-item-content">{{anchorDetail.charm}}</span>
         </el-form-item>
-        <el-form-item label="积分余额" prop="diamonds">
+        <el-form-item label="贝壳余额" prop="diamonds">
           <span class="form-item-content">{{anchorDetail.diamonds}}</span>
         </el-form-item>
         <el-form-item label="注册" prop="createdTime">
@@ -65,7 +68,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <!-- 封禁用户设备/封禁账号/冻结积分/禁言弹框 -->
+    <!-- 封禁用户设备/封禁账号/冻结贝壳/禁言弹框 -->
     <el-dialog
       id="banned-dialog"
       width="865px"
@@ -109,6 +112,7 @@
         <el-button type="danger" @click="submitBannned('bannedForm')">{{bannedText}}</el-button>
       </span>
     </el-dialog>
+    <golds-dialog ref="goldsDialog" :user="anchorDetail"></golds-dialog>
   </div>
 </template>
 
@@ -120,8 +124,10 @@ import {
   groupleader_freeze_user,
   groupleader_unfreeze_user,
 } from "@/api/central/users/list.js";
+import goldsDialog from "./components/goldsdialog"
 export default {
   name: "anchorMessage",
+ 
   props: {
     anchorDetail: {
       type: Object,
@@ -133,6 +139,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    golds:{
+      type: Boolean,
+      default: false,
+    }
   },
   data() {
     return {
@@ -169,7 +179,9 @@ export default {
     };
   },
 
-  components: {},
+  components: {
+    goldsDialog
+  },
 
   computed: {},
 
@@ -178,6 +190,9 @@ export default {
   mounted() {},
   created() {},
   methods: {
+    editGlods(){
+      this.$refs["goldsDialog"].open()
+    },
     // 打开封禁弹框
     openBanned(title) {
       console.log(title);

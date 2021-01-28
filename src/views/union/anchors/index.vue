@@ -1,5 +1,5 @@
 <template>
-  <!-- 快递到业主 -->
+  <!-- 成员列表 -->
   <div class="publicStyle">
     <div class="publicStyle-conter">
       <!-- <div class="legal-tab">

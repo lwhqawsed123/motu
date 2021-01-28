@@ -38,10 +38,6 @@ module.exports = {
         // target: `http://localhost:8080`,
         // target: 'http://39.108.117.10:8888/index.php',// 本地
         // target: 'http://inallog.com:8899/index.php',// 爱聊就聊
-<<<<<<< HEAD
-
-=======
->>>>>>> 592e8c094b026f8899f6f43740f0f3c426955fa1
         target: 'http://cps.mimilive.cn:8888/index.php',// 陌兔
         // target: 'http://cps.howfuli.com:8888/index.php',// 陌聊
         changeOrigin: true,

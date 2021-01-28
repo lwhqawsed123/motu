@@ -90,7 +90,7 @@
             <span title="用户ID">{{scope.row.userid}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="jifen" min-width="110" label="积分"></el-table-column>
+        <el-table-column prop="jifen" min-width="110" label="贝壳"></el-table-column>
         <el-table-column prop="money" min-width="80" label="金额"></el-table-column>
         <el-table-column min-width="120" label="结算时间">
           <template slot-scope="scope">{{parseTime(scope.row.dateline)}}</template>

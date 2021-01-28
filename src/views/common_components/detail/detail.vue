@@ -76,9 +76,9 @@
           type="danger"
           icon="el-icon-close-notification"
           :disabled="detailForm.freeze_jifen?true:false"
-          @click="openBanned('冻结积分')"
+          @click="openBanned('冻结贝壳')"
           v-else
-        >冻结积分</el-button>
+        >冻结贝壳</el-button>
         <el-button
           size="mini"
           type="danger"
@@ -96,7 +96,7 @@
         <el-button @click="closeDialog(false)">关闭</el-button>
       </span>
     </el-dialog>
-    <!-- 封禁用户设备/封禁账号/冻结积分/禁言弹框 -->
+    <!-- 封禁用户设备/封禁账号/冻结贝壳/禁言弹框 -->
     <el-dialog
       id="banned-dialog"
       width="865px"
@@ -169,7 +169,7 @@ import {
 import {
   freezeDeviceOptions, // 封禁设备
   freezeUserOptions, // 封号
-  freezeJifenOptions, // 冻结积分
+  freezeJifenOptions, // 冻结贝壳
   freezeActionOptions, // 禁言原因
   freezeActionTimeOptions, // 禁言时间
   unionfreezeActionTimeOptions,
@@ -360,7 +360,7 @@ export default {
         this.resetForm(res, data.id, true);
       });
     },
-    // 冻结积分请求
+    // 冻结贝壳请求
     freezeJifen(data) {
       freeze_jifen(data).then(res => {
         this.resetForm(res, data.id, true);
@@ -390,7 +390,7 @@ export default {
         this.resetForm(res, data);
       });
     },
-    // 解冻积分
+    // 解冻贝壳
     unfreezeJifen(data) {
       unfreeze_jifen(data).then(res => {
         this.resetForm(res, data);
@@ -408,7 +408,7 @@ export default {
         this.bannedOptinos = freezeDeviceOptions;
       } else if (title === "封号") {
         this.bannedOptinos = freezeUserOptions;
-      } else if (title === "冻结积分") {
+      } else if (title === "冻结贝壳") {
         this.bannedOptinos = freezeJifenOptions;
       } else if (title === "禁言") {
         this.bannedOptinos = freezeActionOptions;
@@ -455,7 +455,7 @@ export default {
             this.freezeDevice(data);
           } else if (this.bannedText === "封号") {
             this.freezeUser(data);
-          } else if (this.bannedText === "冻结积分") {
+          } else if (this.bannedText === "冻结贝壳") {
             this.freezeJifen(data);
           } else if (this.bannedText === "禁言") {
             this.freezeAction(data);

@@ -2,7 +2,11 @@
   <!-- 主播列表 -->
   <div class="record">
     <div class="record-conter">
-      <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
+      <el-row
+        :gutter="20"
+        class="record-top"
+        style="margin-left: 0px; margin-right: 0px"
+      >
         <el-col :span="24">
           <el-form :inline="true" :model="formInline" class="demo-form-inline">
             <!-- <el-form-item label="注册日期：">
@@ -29,8 +33,11 @@
                 ></el-option>
               </el-select>
             </el-form-item>-->
-             <el-form-item label="公会：">
-              <group-select :formInline="formInline" @onSubmit="onSubmit"></group-select>
+            <el-form-item label="公会：">
+              <group-select
+                :formInline="formInline"
+                @onSubmit="onSubmit"
+              ></group-select>
             </el-form-item>
             <el-form-item label="审核状态：">
               <el-select
@@ -39,10 +46,10 @@
                 v-model="formInline.gstatus"
                 placeholder="请选择"
                 size="mini"
-                style="width:85px"
+                style="width: 85px"
               >
                 <el-option
-                  v-for="(item,index) in gstatusOptions"
+                  v-for="(item, index) in gstatusOptions"
                   :key="index"
                   :label="item.label"
                   :value="item.value"
@@ -55,11 +62,11 @@
                 clearable
                 v-model="formInline.gender"
                 placeholder="请选择"
-                style="width:85px"
+                style="width: 85px"
                 size="mini"
               >
                 <el-option
-                  v-for="(item,index) in gengerOptions"
+                  v-for="(item, index) in gengerOptions"
                   :key="index"
                   :label="item.label"
                   :value="item.value"
@@ -72,11 +79,11 @@
                 clearable
                 v-model="formInline.platform"
                 placeholder="请选择"
-                style="width:100px"
+                style="width: 100px"
                 size="mini"
               >
                 <el-option
-                  v-for="(item,index) in platformOptions"
+                  v-for="(item, index) in platformOptions"
                   :key="index"
                   :label="item.label"
                   :value="item.value"
@@ -102,7 +109,7 @@
                 @keyup.enter.native="onSubmit"
                 @clear="onSubmit"
                 placeholder="请输入昵称关键字"
-                style="width:145px"
+                style="width: 145px"
                 clearable
                 size="mini"
               ></el-input>
@@ -139,16 +146,23 @@
               ></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" icon="el-icon-search" @click="onSubmit" size="mini">查询</el-button>
+              <el-button
+                type="primary"
+                icon="el-icon-search"
+                @click="onSubmit"
+                size="mini"
+                >查询</el-button
+              >
             </el-form-item>
             <el-form-item>
               <el-button
                 type="success"
                 icon="el-icon-circle-plus"
                 plain
-                @click="bind.bindDialog=true"
+                @click="bind.bindDialog = true"
                 size="mini"
-              >绑定主播</el-button>
+                >绑定主播</el-button
+              >
             </el-form-item>
           </el-form>
         </el-col>
@@ -171,11 +185,18 @@
         @sort-change="sortChange"
         stripe
         >-->
-        <el-table-column type="index" min-width="50px" label="编号"></el-table-column>
-        <el-table-column prop="group_name" label="公会" min-width="50px"></el-table-column>
+        <el-table-column
+          type="index"
+          min-width="50px"
+          label="编号"
+        ></el-table-column>
+        <el-table-column
+          prop="group_name"
+          label="公会"
+          min-width="50px"
+        ></el-table-column>
         <!-- 用户信息 -->
         <el-table-column label="头像" min-width="50px">
-       
           <template slot-scope="scope">
             <!-- <el-popover placement="right" trigger="click" @show="getAnchorDetail(scope.row.userid)" @hide="anchorDetailLoading=false">
               <anchor-message :anchorDetail="anchorDetail" :loading="anchorDetailLoading"></anchor-message>
@@ -188,29 +209,47 @@
                 <span style="color:#f56c6c" v-else-if="scope.row.status==='2'">封号</span>
               </div>
             </el-popover> -->
-            <info-popover v-if="scope.row.userid" :userid="scope.row.userid" :avatar="scope.row.avatar" :status="scope.row.status"></info-popover>
+            <info-popover
+              v-if="scope.row.userid"
+              :userid="scope.row.userid"
+              :avatar="scope.row.avatar"
+              :status="scope.row.status"
+              :golds="true"
+            ></info-popover>
           </template>
         </el-table-column>
-        <el-table-column show-overflow-tooltip min-width="120px" label="昵称/ID">
+        <el-table-column
+          show-overflow-tooltip
+          min-width="120px"
+          label="昵称/ID"
+        >
           <template slot-scope="scope">
-            <span class="visitor-info-name" title="用户昵称">{{scope.row.nickname}}</span>
+            <span class="visitor-info-name" title="用户昵称">{{
+              scope.row.nickname
+            }}</span>
             <br />
             <span
               class="gender-men"
-              :class="scope.row.gender==='1'?'':'gender-women'"
-            >{{scope.row.age}}</span>
+              :class="scope.row.gender === '1' ? '' : 'gender-women'"
+              >{{ scope.row.age }}</span
+            >
             <span
               class="el-icon-video-camera-solid verify_status"
               title="视频认证"
-              v-if="scope.row.verify_status==='1'"
+              v-if="scope.row.verify_status === '1'"
             ></span>
-            <span title="短ID">{{scope.row.username}}</span>
+            <span title="短ID">{{ scope.row.username }}</span>
             <br />
-            <span title="用户ID">{{scope.row.userid}}</span>
+            <span title="用户ID">{{ scope.row.userid }}</span>
           </template>
         </el-table-column>
         <!-- 用户信息结束 -->
-        <el-table-column show-overflow-tooltip prop="memo" label="备注" min-width="60px"></el-table-column>
+        <el-table-column
+          show-overflow-tooltip
+          prop="memo"
+          label="备注"
+          min-width="60px"
+        ></el-table-column>
         <!-- <el-table-column prop="group_name" label="公会" show-overflow-tooltip></el-table-column> -->
         <!-- <el-table-column prop="platform" label="平台" min-width="80px" show-overflow-tooltip></el-table-column> -->
         <!-- 主播星级 -->
@@ -235,9 +274,9 @@
                 >{{item.label}}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown> -->
-             <el-tag>
-                {{myFilter(scope.row.nice,starOptions)}}
-              </el-tag>
+            <el-tag>
+              {{ myFilter(scope.row.nice, starOptions) }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -246,7 +285,9 @@
           prop="registertime"
           label="注册时间"
         >
-          <template slot-scope="scope">{{parseTime(scope.row.registertime)}}</template>
+          <template slot-scope="scope">{{
+            parseTime(scope.row.registertime)
+          }}</template>
         </el-table-column>
 
         <el-table-column
@@ -255,9 +296,17 @@
           prop="lastlogintime"
           label="最近登陆"
         >
-          <template slot-scope="scope">{{parseTime(scope.row.lastlogintime)}}</template>
+          <template slot-scope="scope">{{
+            parseTime(scope.row.lastlogintime)
+          }}</template>
         </el-table-column>
-        <el-table-column show-overflow-tooltip sortable="custom" prop="jifen_now" label="当前收益" min-width="65px">
+        <el-table-column
+          show-overflow-tooltip
+          sortable="custom"
+          prop="jifen_now"
+          label="当前收益"
+          min-width="65px"
+        >
           <!-- <template slot="header">
             <span>当前收益</span>
             <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
@@ -289,23 +338,50 @@
           <template slot-scope="scope">
             <a
               href="javascript:;"
-              style="margin-right:3px; color: rgb(24, 144, 255);"
+              style="margin-right: 3px; color: rgb(24, 144, 255)"
               @click="toCallRecords(scope.row)"
-            >查看</a>
+              >查看</a
+            >
+          </template>
+        </el-table-column>
+        <el-table-column label="速配状态" min-width="80px">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.is_supei"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              disabled
+            >
+            </el-switch>
           </template>
         </el-table-column>
         <el-table-column label="审核状态" min-width="80px">
           <template slot-scope="scope">
-            <span v-if="scope.row.group_status ==='2'" style="color:#66b1ff">待审核</span>
-            <span v-else-if="scope.row.group_status ==='0'" style="color:#f56c6c">未通过</span>
-            <span v-else-if="scope.row.group_status ==='1'" style="color:#67c23a">已通过</span>
+            <span v-if="scope.row.group_status === '2'" style="color: #66b1ff"
+              >待审核</span
+            >
+            <span
+              v-else-if="scope.row.group_status === '0'"
+              style="color: #f56c6c"
+              >未通过</span
+            >
+            <span
+              v-else-if="scope.row.group_status === '1'"
+              style="color: #67c23a"
+              >已通过</span
+            >
             <span v-else>-</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="160px">
           <template slot="header">
             <span>操作</span>
-            <el-tooltip class="item" effect="dark" content="提示文字" placement="top">
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="提示文字"
+              placement="top"
+            >
               <i class="el-icon-question icon-color"></i>
             </el-tooltip>
           </template>
@@ -315,22 +391,24 @@
               size="mini"
               title="聊天记录"
               @click="openChattingRecords(scope.row)"
-              style="margin-bottom:5px"
+              style="margin-bottom: 5px"
             ></el-button>
             <el-button
               icon="el-icon-sell"
               size="mini"
               title="备注修改"
               @click="openMymember(scope.row.userid)"
-              style="margin-bottom:5px"
+              style="margin-bottom: 5px"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-remove"
               plain
+              title="解除绑定"
               @click="removeBind(scope.row)"
               size="mini"
-            >解绑</el-button>
+              >解绑</el-button
+            >
           </template>
         </el-table-column>
         <!-- </el-table> -->
@@ -351,7 +429,7 @@
     <el-dialog
       @close="resetForm('bindForm')"
       id="bind-dialog"
-      title="绑定主播到公会"
+      title="查询主播信息"
       :visible.sync="bind.bindDialog"
       width="500px"
       custom-class="common-dialog"
@@ -359,42 +437,41 @@
       <el-form
         :rules="bind.rules"
         :model="bind.bindForm"
-        label-width="80px"
+        label-width="150px"
         label-position="right"
         ref="bindForm"
         :close-on-click-modal="false"
+        @submit.native.prevent
       >
-        <el-form-item label="主播手机" prop="mobile">
-          <el-input v-model="bind.bindForm.mobile" maxlength="11" placeholder="请输入手机号"></el-input>
-        </el-form-item>
-        <el-form-item label="验证码" prop="code">
-          <el-row>
-            <el-col :span="10" style="margin-right:10px">
-              <el-input v-model="bind.bindForm.code" maxlength="10" placeholder="请输入验证码"></el-input>
-            </el-col>
-
-            <el-col :span="10">
-              <el-button
-                type="success"
-                style="width:100%"
-                :disabled="bind.time!==0"
-                @click="getCode('bindForm')"
-              >
-                <span>获取手机验证码</span>
-                <span v-if="bind.time">{{bind.time}}s</span>
-              </el-button>
-            </el-col>
-          </el-row>
+        <el-form-item label="主播手机号/用户ID" prop="mobile">
+          <el-input
+            v-model="bind.bindForm.mobile"
+            maxlength="200"
+            placeholder="请输入手机号或用户ID"
+            @keyup.enter.native="queryUser('bindForm')"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="owner-dialog-footer">
         <el-button @click="resetForm('bindForm')">取消</el-button>
-        <el-button type="primary" @click="submitForm('bindForm')">确定</el-button>
+        <!-- <el-button type="primary" @click="submitForm('bindForm')">确定</el-button> -->
+        <el-button type="primary" @click="queryUser('bindForm')"
+          >确定</el-button
+        >
       </div>
     </el-dialog>
     <!-- 聊天记录弹框 -->
-    <chattingRecords v-if="chattingData.userid" :chattingData="chattingData"></chattingRecords>
-    <mymember v-if="mymemberData.id" :mymemberData="mymemberData" @getOnlineList="getOnlineList"></mymember>
+    <chattingRecords
+      v-if="chattingData.userid"
+      :chattingData="chattingData"
+    ></chattingRecords>
+    <mymember
+      v-if="mymemberData.id"
+      :mymemberData="mymemberData"
+      @getOnlineList="getOnlineList"
+    ></mymember>
+    <!-- 绑定主播弹框 -->
+    <bind-user ref="bindUser" @getOnlineList="getOnlineList" :userid="bind.bindForm.mobile"></bind-user>
   </div>
 </template>
 
@@ -419,6 +496,8 @@ import {
 // import chattingRecords from "./chattingRecords.vue";
 import chattingRecords from "@/views/common_components/chattingRecords/chattingRecords.vue";
 import mymember from "./mymember.vue";
+import bindUser from "./bindUser.vue";
+
 import detail from "@/views/common_components/detail/detail.vue";
 import anchorMessage from "@/views/common_components/anchorMessage/anchorMessage.vue";
 import infoPopover from "@/views/common_components/infoPopover/infoPopover.vue";
@@ -429,7 +508,8 @@ export default {
     mymember,
     detail,
     anchorMessage,
-    infoPopover
+    infoPopover,
+    bindUser,
   },
   data() {
     return {
@@ -503,13 +583,13 @@ export default {
         rules: {
           // 电话
           mobile: [
-            { required: true, message: "请输入手机号", trigger: "blur" },
-            {
-              // pattern: /^0{0,1}(13[0-9]|15[7-9]|153|156|18[7-9])[0-9]{8}$/,
-              pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
-              message: "手机号格式不对",
-              trigger: "blur",
-            },
+            { required: true, message: "请输入手机号或用户ID", trigger: "blur" },
+            // {
+            //   // pattern: /^0{0,1}(13[0-9]|15[7-9]|153|156|18[7-9])[0-9]{8}$/,
+            //   pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
+            //   message: "手机号格式不对",
+            //   trigger: "blur",
+            // },
           ],
           // 验证码
           code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
@@ -532,7 +612,7 @@ export default {
       // 当前用户详细信息
       anchorDetail: {},
       // loading
-      anchorDetailLoading:false
+      anchorDetailLoading: false,
     };
   },
   created() {
@@ -551,7 +631,7 @@ export default {
       });
     },
     onSubmit() {
-      this.formInline.pageNum=1
+      this.formInline.pageNum = 1;
       this.getOnlineList();
     },
     // 获取列表
@@ -563,7 +643,11 @@ export default {
       // delete data.date;
       list(data).then((xhrData) => {
         if (xhrData.code === 0) {
+          xhrData.data.items.forEach((item) => {
+            item.is_supei=item.is_supei === "1" ? true : false;
+          });
           this.tableData = xhrData.data.items;
+
           this.groupid = xhrData.data.groupid;
           this.totalNum = +xhrData.data.total_rows;
           this.ext_stat = xhrData.data.ext_stat;
@@ -668,26 +752,38 @@ export default {
         }
       });
     },
+    // 查询主播信息
+    queryUser(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.$refs["bindUser"].openbind();
+        } else {
+          return false;
+        }
+      });
+    },
     // 解绑主播
     removeBind(row) {
       this.$confirm("是否解绑该用户?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-      }).then(() => {
-        let data = {
-          groupid: this.$store.state.user.groupInfo.id,
-          userid: row.userid,
-        };
-        unbind(data).then((res) => {
-          if (res.code === 0) {
-            this.$message.success(res.info);
-            this.getOnlineList();
-          }
-        });
-      }).catch(()=>{
-        return false
       })
+        .then(() => {
+          let data = {
+            groupid: this.$store.state.user.groupInfo.id,
+            userid: row.userid,
+          };
+          unbind(data).then((res) => {
+            if (res.code === 0) {
+              this.$message.success(res.info);
+              this.getOnlineList();
+            }
+          });
+        })
+        .catch(() => {
+          return false;
+        });
     },
     // 打开主播分成
     openMymember(id) {
@@ -711,18 +807,18 @@ export default {
     },
     // 获取当前主播详细信息
     getAnchorDetail(id) {
-      this.anchorDetailLoading=true
-      get_anchor_by_id(id).then((res) => {
-        if (res && res.code === 0) {
-          this.anchorDetail = res.data;
-          this.anchorDetailLoading=false
-        }
-      }).catch(err=>{
-        this.anchorDetailLoading=false
-      })
+      this.anchorDetailLoading = true;
+      get_anchor_by_id(id)
+        .then((res) => {
+          if (res && res.code === 0) {
+            this.anchorDetail = res.data;
+            this.anchorDetailLoading = false;
+          }
+        })
+        .catch((err) => {
+          this.anchorDetailLoading = false;
+        });
     },
-    
-    
   },
 };
 </script>

@@ -75,7 +75,7 @@
           sortable="custom"
           show-overflow-tooltip
           min-width="120px"
-          label="获得积分"
+          label="获得贝壳"
         ></el-table-column>
         <el-table-column
           prop="income_users"

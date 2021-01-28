@@ -19,7 +19,7 @@ export const freezeUserOptions = [
     { value: 6, label: "未成年人" }
 ]
 
-// 冻结积分选项
+// 冻结贝壳选项
 export const freezeJifenOptions = [
     { value: 1, label: "群发广告" },
     { value: 2, label: "涉嫌发布低俗内容" },

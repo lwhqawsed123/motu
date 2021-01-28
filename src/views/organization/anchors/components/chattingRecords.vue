@@ -42,7 +42,7 @@
                   <div
                     class="link-button to-diamonds cursor"
                     @click="navigateTo('union/diamonds',anchorForm.username)"
-                  >积分流水</div>
+                  >贝壳流水</div>
                 </div>
                 <!-- <div
                   class="link-button to-chatt-records cursor"
@@ -61,7 +61,7 @@
                 <el-form-item label="魅力值" prop="charm">
                   <span class="form-item-content">{{format(anchorForm.charm)}}</span>
                 </el-form-item>
-                <el-form-item label="积分余额" prop="diamonds">
+                <el-form-item label="贝壳余额" prop="diamonds">
                   <span class="form-item-content">{{format(anchorForm.diamonds)}}</span>
                 </el-form-item>
                 <el-form-item label="注册" prop="dateline">

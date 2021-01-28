@@ -61,7 +61,7 @@
           <template slot-scope="scope">{{scope.row.listname?scope.row.listname:'无标题'}}</template>
         </el-table-column>
         <el-table-column prop="giftnum_taday" label="本场收到礼物数"></el-table-column>
-        <el-table-column prop="jifen" label="本场积分收益"></el-table-column>
+        <el-table-column prop="jifen" label="本场贝壳收益"></el-table-column>
         <el-table-column prop="xingguang" label="本场星光值收益"></el-table-column>
         <el-table-column prop="follownum" label="本场新增粉丝"></el-table-column>
         <el-table-column prop="timelong" label="本场有效直播时长"></el-table-column>

@@ -113,19 +113,10 @@ service.interceptors.response.use(res => {
   }
 },
   error => {
-<<<<<<< HEAD
     if (loading !== null) {
       loading.close()
       loading = null
     }
-=======
-    // if (error.config.loading) {
-    //   setTimeout(() => {
-    //     loading.close()
-    //     loading = ''
-    //   }, 500);
-    // }
->>>>>>> 592e8c094b026f8899f6f43740f0f3c426955fa1
     //  1.判断请求超时
     if (error.code === 'ECONNABORTED' && error.message.indexOf('timeout') !== -1) {
       // console.log('根据你设置的timeout/真的请求超时 判断请求现在超时了，你可以在这里加入超时的处理方案')

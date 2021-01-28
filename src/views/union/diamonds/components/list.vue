@@ -1,5 +1,5 @@
 <template>
-  <!-- 主播列表 -->
+  <!-- 金币流水 -->
   <div class="record">
     <div class="record-conter">
       <el-row :gutter="20" class="record-top" style="margin-left: 0px; margin-right: 0px;">
@@ -53,8 +53,8 @@
                 ></el-option>
               </el-select>
             </el-form-item>
-            <!-- 需求更改,不显示金币流水 -->
-            <!-- <el-form-item label="币种：">
+            <!-- 需求更改,不显示币种 -->
+            <el-form-item label="币种：">
               <el-select
                 @change="onSubmit"
                 clearable
@@ -70,7 +70,7 @@
                   :value="item.value"
                 ></el-option>
               </el-select>
-            </el-form-item>-->
+            </el-form-item>
 
             <el-form-item label="描述：">
               <el-input
@@ -111,7 +111,27 @@
         >-->
         <el-table-column type="index" min-width="30px" label="编号"></el-table-column>
         <el-table-column prop="group_name" min-width="50px" label="公会" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="userid" min-width="60px" label="用户ID"></el-table-column>
+        <el-table-column  min-width="120px" label="昵称/ID">
+            <template slot-scope="scope">
+            <span class="visitor-info-name" title="用户昵称">{{
+              scope.row.nickname
+            }}</span>
+            <br />
+            <span
+              class="gender-men"
+              :class="scope.row.gender === '1' ? '' : 'gender-women'"
+              >{{ scope.row.age }}</span
+            >
+            <span
+              class="el-icon-video-camera-solid verify_status"
+              title="视频认证"
+              v-if="scope.row.verify_status === '1'"
+            ></span>
+            <span title="短ID">{{ scope.row.username }}</span>
+            <br />
+            <span title="用户ID">{{ scope.row.userid }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="operation" show-overflow-tooltip min-width="60px" label="操作类型">
           <template slot-scope="scope">{{myFilter(scope.row.operation,operationOptions)}}</template>
         </el-table-column>

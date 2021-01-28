@@ -239,7 +239,7 @@
                 style="width:80px"
               ></el-input>
             </el-form-item>
-            <el-form-item label="积分：">
+            <el-form-item label="贝壳：">
               <el-input
                 v-model.trim="formInline.jifen1"
                 @keyup.enter.native="onSubmit"
@@ -395,7 +395,7 @@
         <el-table-column  prop="duration" min-width="40px" label="通话"></el-table-column>
         <el-table-column  prop="feerate" min-width="50px" label="费率"></el-table-column>
         <el-table-column  prop="gold" min-width="50px" label="金币"></el-table-column>
-        <el-table-column  prop="jifen" min-width="50px" label="积分"></el-table-column>
+        <el-table-column  prop="jifen" min-width="50px" label="贝壳"></el-table-column>
         <!-- <el-table-column  label="截图">
           <template slot-scope="scope">
             <el-button

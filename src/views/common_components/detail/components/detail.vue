@@ -53,7 +53,7 @@
                 </span>
 
                 <span v-else-if="form.freeze_jifen">
-                  <span>积分冻结</span>
+                  <span>贝壳冻结</span>
                   <span class="refresh-token" @click="changeDetail('解冻')">
                     <span class="el-icon-refresh refresh-icon"></span>
                     <span>解冻</span>
@@ -96,9 +96,9 @@
               <td width="25%">{{form.gold+'/'+(form.usercount.goldsum||'0')}}</td>
             </tr>
             <tr>
-              <td width="25%">累计积分</td>
+              <td width="25%">累计贝壳</td>
               <td width="25%">{{form.usercount.jifen}}</td>
-              <td width="25%">当前积分</td>
+              <td width="25%">当前贝壳</td>
               <td width="25%">{{form.jifen}}</td>
             </tr>
           </tbody>

@@ -18,7 +18,7 @@ export const accountTypeOptions = [
 // 分成计算方式选项 
 export const commissionMethodOptions = [
     { value: '1', label: "按流水计算" },
-    { value: '2', label: "按主播积分计算" },
+    { value: '2', label: "按主播贝壳计算" },
 ]
 
 // 公会状态选项 

@@ -96,12 +96,12 @@
                 maxlength="200"
               ></el-input>
             </el-form-item>
-            <el-form-item label="积分：">
+            <el-form-item label="贝壳：">
               <el-input
                 v-model.trim="formInline.min_jifen"
                 @keyup.enter.native="onSubmit"
                 @clear="onSubmit"
-                placeholder="最小积分"
+                placeholder="最小贝壳"
                 clearable
                 size="mini"
                 maxlength="200"
@@ -111,7 +111,7 @@
                 v-model.trim="formInline.max_jifen"
                 @keyup.enter.native="onSubmit"
                 @clear="onSubmit"
-                placeholder="最大积分"
+                placeholder="最大贝壳"
                 clearable
                 size="mini"
                 maxlength="200"
@@ -225,7 +225,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="goldcoin" min-width="80" label="金币"></el-table-column>
-        <el-table-column prop="jifen" min-width="80" label="积分"></el-table-column>
+        <el-table-column prop="jifen" min-width="80" label="贝壳"></el-table-column>
         <el-table-column prop="time" min-width="110" label="时间">
           <template slot-scope="scope">{{parseTime(scope.row.dateline)}}</template>
         </el-table-column>

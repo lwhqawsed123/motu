@@ -46,7 +46,7 @@ export function freeze_user(data) {
     params: data.data
   })
 }
-// 冻结积分
+// 冻结贝壳
 export function freeze_jifen(data) {
   return request({
     url: `/users/users/freeze_jifen/${data.id}`,

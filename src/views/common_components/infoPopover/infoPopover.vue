@@ -6,7 +6,7 @@
     @show="getAnchorDetail(userid)"
     @hide="anchorDetailLoading=false"
   >
-    <anchor-message :anchorDetail="anchorDetail" :loading="anchorDetailLoading"></anchor-message>
+    <anchor-message :anchorDetail="anchorDetail" :loading="anchorDetailLoading" :golds="golds"></anchor-message>
     <div class="anchor-info cursor" slot="reference">
       <div class="profile-box">
         <img :src="avatar" alt class="profile" />
@@ -26,7 +26,7 @@ import {
 import anchorMessage from "@/views/common_components/anchorMessage/anchorMessage.vue";
 export default {
   name: "",
-  props: ["userid","avatar","status"],
+  props: ["userid","avatar","status","golds"],
   data() {
     return {
         anchorDetail:{},

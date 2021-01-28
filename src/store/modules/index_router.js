@@ -98,7 +98,7 @@ const router={
                 },
                 {
                     component: "union/diamonds/index",
-                    meta: {title: "积分流水", icon: "international"},
+                    meta: {title: "贝壳流水", icon: "international"},
                     name: "Diamonds",
                     path: "diamonds",
                     menuId:35
